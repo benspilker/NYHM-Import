@@ -1,0 +1,44 @@
+move com.zerotier.one.plist from /applications/nowyouhearme/temp  to /Library/LaunchDaemons/com.zerotier.one.plist 		moves launch daemon back to zerotier folder  
+
+sudo launchctl load /Library/LaunchDaemons/com.zerotier.one.plist 		starts zero-tier
+
+
+
+
+echo welcome to nowyouhear.me
+
+echo input your email, then hit Enter.
+
+
+
+returns id ################
+
+
+
+sudo zerotier-cli join ################                 runs command to join network 
+
+
+sleep time 2 sec  echo connecting…
+
+echo you are now connected to your nowyouhear.me network
+
+echo keep this window open to stay connected, you may minimize this window
+
+echo press spacebar twice to properly disconnect and exit
+
+
+opens HowTouUse.pdf
+
+on first spacebar press  {  
+
+sudo zerotier-cli leave ################
+
+sleep time 1 sec  echo disconnecting…
+
+sudo launchctl unload /Library/LaunchDaemons/com.zerotier.one.plist
+move com.zerotier.one.plist from /Library/LaunchDaemons/com.zerotier.one.plist  to /applications/nowyouhearme/temp		moves launch daemon back to nowyouhearme/temp folder  
+
+}
+
+on second spacebar press
+exit

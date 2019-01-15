@@ -1,0 +1,185 @@
+21:23:07.028: CPU Name: Intel(R) Core(TM) i7-2600S CPU @ 2.80GHz
+21:23:07.028: CPU Speed: 2794MHz
+21:23:07.028: Physical Cores: 4, Logical Cores: 8
+21:23:07.028: Physical Memory: 8073MB Total, 4131MB Free
+21:23:07.028: Windows Version: 10.0 Build 17763 (revision: 194; 64-bit)
+21:23:07.028: Running as administrator: false
+21:23:07.028: Aero is Enabled (Aero is always on for windows 8 and above)
+21:23:07.029: Windows 10 Gaming Features:
+21:23:07.029: 	Game DVR: On
+21:23:07.030: Sec. Software Status:
+21:23:07.032: 	Windows Defender Antivirus: disabled (AV)
+21:23:07.032: 	Trend Micro OfficeScan Antivirus: temporarily disabled (AV)
+21:23:07.033: 	Trend Micro Personal Firewall: disabled (FW)
+21:23:07.033: 	Windows Firewall: enabled (FW)
+21:23:07.033: 	Trend Micro OfficeScan Anti-spyware: temporarily disabled (ASW)
+21:23:07.033: 	Windows Defender Antivirus: disabled (ASW)
+21:23:07.034: Browser Hardware Acceleration: true
+21:23:07.034: Portable mode: false
+21:23:07.163: OBS 22.0.2 (64-bit, windows)
+21:23:07.164: ---------------------------------
+21:23:07.164: ---------------------------------
+21:23:07.164: audio settings reset:
+21:23:07.164: 	samples per sec: 44100
+21:23:07.164: 	speakers:        2
+21:23:07.165: ---------------------------------
+21:23:07.165: Initializing D3D11...
+21:23:07.165: Available Video Adapters: 
+21:23:07.168: 	Adapter 1: Intel(R) HD Graphics
+21:23:07.168: 	  Dedicated VRAM: 33554432
+21:23:07.168: 	  Shared VRAM:    1711276032
+21:23:07.168: 	  output 1: pos={0, 0}, size={1280, 1024}, attached=true
+21:23:07.170: Loading up D3D11 on adapter Intel(R) HD Graphics (0)
+21:23:07.174: D3D11 loaded successfully, feature level used: 41216
+21:23:08.167: ---------------------------------
+21:23:08.167: video settings reset:
+21:23:08.167: 	base resolution:   1280x1024
+21:23:08.167: 	output resolution: 1024x818
+21:23:08.167: 	downscale filter:  Bicubic
+21:23:08.167: 	fps:               30/1
+21:23:08.167: 	format:            NV12
+21:23:08.167: 	YUV mode:          601/Partial
+21:23:08.168: Audio monitoring device:
+21:23:08.168: 	name: Default
+21:23:08.168: 	id: default
+21:23:08.168: ---------------------------------
+21:23:08.171: Required module function 'obs_module_load' in module '../../obs-plugins/64bit/chrome_elf.dll' not found, loading of module failed
+21:23:08.173: [CoreAudio encoder]: CoreAudio AAC encoder not installed on the system or couldn't be loaded
+21:23:08.212: [AMF] AMF Test failed due to one or more errors.
+21:23:08.212: Failed to initialize module 'enc-amf.dll'
+21:23:08.226: Required module function 'obs_module_load' in module '../../obs-plugins/64bit/libcef.dll' not found, loading of module failed
+21:23:08.227: LoadLibrary failed for '../../obs-plugins/64bit/libEGL.dll': The specified procedure could not be found.
+21:23:08.227:  (127)
+21:23:08.227: Module '../../obs-plugins/64bit/libEGL.dll' not loaded
+21:23:08.228: Required module function 'obs_module_load' in module '../../obs-plugins/64bit/libGLESv2.dll' not found, loading of module failed
+21:23:08.229: [obs-browser]: Version 2.1.5
+21:23:08.229: [obs-browser]: Blacklisted device detected, disabling browser source hardware acceleration.
+21:23:08.232: LoadLibrary failed for 'nvEncodeAPI64.dll': The specified module could not be found.
+21:23:08.232:  (126)
+21:23:08.234: [obs-ndi] hello ! (version 4.5.3)
+21:23:08.234: [obs-ndi] Trying 'C:\Program Files\NewTek\NewTek NDI 3.8 Runtime\v3'
+21:23:08.234: [obs-ndi] Found NDI library at 'C:/Program Files/NewTek/NewTek NDI 3.8 Runtime/v3/Processing.NDI.Lib.x64.dll'
+21:23:08.248: [obs-ndi] NDI runtime loaded successfully
+21:23:08.257: [obs-ndi] NDI library initialized successfully
+21:23:08.348: [obs-ndi] starting NDI main output with name 'OBS'
+21:23:08.363: [obs-ndi] 'OBS': ndi output started
+21:23:08.407: VLC found, VLC video source enabled
+21:23:08.415: No blackmagic support
+21:23:08.421: ---------------------------------
+21:23:08.421:   Loaded Modules:
+21:23:08.421:     win-wasapi.dll
+21:23:08.421:     win-mf.dll
+21:23:08.421:     win-dshow.dll
+21:23:08.421:     win-decklink.dll
+21:23:08.421:     win-capture.dll
+21:23:08.421:     vlc-video.dll
+21:23:08.421:     text-freetype2.dll
+21:23:08.421:     rtmp-services.dll
+21:23:08.421:     obs-x264.dll
+21:23:08.421:     obs-vst.dll
+21:23:08.421:     obs-transitions.dll
+21:23:08.421:     obs-text.dll
+21:23:08.421:     obs-qsv11.dll
+21:23:08.421:     obs-outputs.dll
+21:23:08.421:     obs-ndi.dll
+21:23:08.421:     obs-filters.dll
+21:23:08.421:     obs-ffmpeg.dll
+21:23:08.421:     obs-browser.dll
+21:23:08.421:     image-source.dll
+21:23:08.421:     frontend-tools.dll
+21:23:08.421:     enc-amf.dll
+21:23:08.421:     coreaudio-encoder.dll
+21:23:08.421: ---------------------------------
+21:23:08.421: ==== Startup complete ===============================================
+21:23:08.421: Service '' not found
+21:23:08.425: All scene data cleared
+21:23:08.425: ------------------------------------------------
+21:23:08.495: WASAPI: Device 'Hi-Fi Cable Output (VB-Audio Hi-Fi Cable)' initialized
+21:23:08.520: [obs-ndi] started A/V threads for source ''
+21:23:08.520: [obs-ndi] A/V thread for 'NDI™ Source' started
+21:23:08.521: Switched to scene 'Scene'
+21:23:08.521: ------------------------------------------------
+21:23:08.521: Loaded scenes:
+21:23:08.521: - scene 'Scene':
+21:23:08.521:     - source: 'Display Capture' (monitor_capture)
+21:23:08.521:     - source: 'NDI™ Source' (ndi_source)
+21:23:08.521: ------------------------------------------------
+21:23:08.544: adding 46 milliseconds of audio buffering, total audio buffering is now 46 milliseconds
+21:23:08.639: CalculateFileHash: Failed to open file 'C:\Users\ben\AppData\Roaming\obs-studio\updates\whatsnew.json': 
+21:23:13.055: ==== Shutting down ==================================================
+21:23:13.057: [obs-ndi] stopping NDI main output
+21:23:13.057: Output 'NDI Main Output': stopping
+21:23:13.057: Output 'NDI Main Output': Total frames output: 137
+21:23:13.057: Output 'NDI Main Output': Total drawn frames: 141
+21:23:13.070: Switched to scene '(null)'
+21:23:13.156: [obs-ndi] audio thread for 'NDI™ Source' completed
+21:23:13.157: WASAPI: Device 'Hi-Fi Cable Output (VB-Audio Hi-Fi Cable)' Terminated
+21:23:13.162: All scene data cleared
+21:23:13.162: ------------------------------------------------
+21:23:13.251: Freeing OBS context data
+21:23:13.264: [obs-ndi] goodbye !
+21:23:13.268: [Scripting] Total detached callbacks: 0
+21:23:13.275: == Profiler Results =============================
+21:23:13.275: run_program_init: 2130.99 ms
+21:23:13.275:  ┣OBSApp::AppInit: 20.423 ms
+21:23:13.275:  ┃ ┗OBSApp::InitLocale: 1.645 ms
+21:23:13.275:  ┗OBSApp::OBSInit: 2078.32 ms
+21:23:13.275:    ┣obs_startup: 5.757 ms
+21:23:13.275:    ┗OBSBasic::OBSInit: 1474.48 ms
+21:23:13.275:      ┣OBSBasic::InitBasicConfig: 0.534 ms
+21:23:13.275:      ┣OBSBasic::ResetAudio: 0.211 ms
+21:23:13.275:      ┣OBSBasic::ResetVideo: 1003.04 ms
+21:23:13.275:      ┣OBSBasic::InitOBSCallbacks: 0.008 ms
+21:23:13.275:      ┣OBSBasic::InitHotkeys: 0.052 ms
+21:23:13.275:      ┣obs_load_all_modules: 252.833 ms
+21:23:13.275:      ┃ ┣obs_init_module(coreaudio-encoder.dll): 0.929 ms
+21:23:13.275:      ┃ ┣obs_init_module(enc-amf.dll): 38.207 ms
+21:23:13.275:      ┃ ┣obs_init_module(frontend-tools.dll): 4.797 ms
+21:23:13.275:      ┃ ┣obs_init_module(image-source.dll): 0.004 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-browser.dll): 0.24 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-ffmpeg.dll): 0.806 ms
+21:23:13.275:      ┃ ┃ ┗nvenc_check: 0.789 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-filters.dll): 0.011 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-ndi.dll): 128.392 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-outputs.dll): 0.006 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-qsv11.dll): 31.849 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-text.dll): 0.39 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-transitions.dll): 0.008 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-vst.dll): 0.001 ms
+21:23:13.275:      ┃ ┣obs_init_module(obs-x264.dll): 0.001 ms
+21:23:13.275:      ┃ ┣obs_init_module(rtmp-services.dll): 1.181 ms
+21:23:13.275:      ┃ ┣obs_init_module(text-freetype2.dll): 0.066 ms
+21:23:13.275:      ┃ ┣obs_init_module(vlc-video.dll): 1.64 ms
+21:23:13.275:      ┃ ┣obs_init_module(win-capture.dll): 0.104 ms
+21:23:13.275:      ┃ ┣obs_init_module(win-decklink.dll): 4.902 ms
+21:23:13.275:      ┃ ┣obs_init_module(win-dshow.dll): 2.925 ms
+21:23:13.276:      ┃ ┣obs_init_module(win-mf.dll): 0 ms
+21:23:13.276:      ┃ ┣obs_init_module(win-wasapi.dll): 0.005 ms
+21:23:13.276:      ┃ ┗reset_win32_symbol_paths: 0.155 ms
+21:23:13.276:      ┣OBSBasic::ResetOutputs: 0.272 ms
+21:23:13.276:      ┣OBSBasic::CreateHotkeys: 0.029 ms
+21:23:13.276:      ┣OBSBasic::InitService: 2.092 ms
+21:23:13.276:      ┣OBSBasic::InitPrimitives: 0.411 ms
+21:23:13.276:      ┗OBSBasic::Load: 100.914 ms
+21:23:13.276: obs_hotkey_thread(25 ms): min=0.004 ms, median=0.009 ms, max=0.26 ms, 99th percentile=0.086 ms, 100% below 25 ms
+21:23:13.276: audio_thread(Audio): min=0 ms, median=0.065 ms, max=0.449 ms, 99th percentile=0.175 ms
+21:23:13.276: obs_graphics_thread(33.3333 ms): min=0.016 ms, median=2.167 ms, max=13.616 ms, 99th percentile=9.815 ms, 100% below 33.333 ms
+21:23:13.276:  ┣tick_sources: min=0.002 ms, median=0.339 ms, max=7.675 ms, 99th percentile=1.83 ms
+21:23:13.276:  ┣output_frame: min=0.013 ms, median=1.009 ms, max=13.588 ms, 99th percentile=5.868 ms
+21:23:13.276:  ┃ ┣gs_context(video->graphics): min=0.012 ms, median=0.636 ms, max=13.587 ms, 99th percentile=5.866 ms
+21:23:13.276:  ┃ ┃ ┣render_video: min=0.009 ms, median=0.35 ms, max=12.395 ms, 99th percentile=0.788 ms
+21:23:13.276:  ┃ ┃ ┃ ┣render_main_texture: min=0.005 ms, median=0.196 ms, max=0.778 ms, 99th percentile=0.286 ms
+21:23:13.276:  ┃ ┃ ┃ ┣render_output_texture: min=0.002 ms, median=0.061 ms, max=0.425 ms, 99th percentile=0.203 ms, 0.927632 calls per parent call
+21:23:13.276:  ┃ ┃ ┃ ┣render_convert_texture: min=0.001 ms, median=0.043 ms, max=0.214 ms, 99th percentile=0.187 ms, 0.927632 calls per parent call
+21:23:13.276:  ┃ ┃ ┃ ┗stage_output_texture: min=0 ms, median=0.04 ms, max=12.204 ms, 99th percentile=0.071 ms, 0.927632 calls per parent call
+21:23:13.276:  ┃ ┃ ┣gs_flush: min=0.003 ms, median=0.266 ms, max=2.858 ms, 99th percentile=2.844 ms
+21:23:13.276:  ┃ ┃ ┗download_frame: min=0 ms, median=0.012 ms, max=0.023 ms, 99th percentile=0.019 ms, 0.927632 calls per parent call
+21:23:13.276:  ┃ ┗output_video_data: min=0.246 ms, median=0.369 ms, max=1.361 ms, 99th percentile=1.213 ms, 0.901316 calls per parent call
+21:23:13.276:  ┗render_displays: min=0 ms, median=0.805 ms, max=2.851 ms, 99th percentile=2.743 ms
+21:23:13.276: video_thread(video): min=2.763 ms, median=3.978 ms, max=8.585 ms, 99th percentile=6.851 ms
+21:23:13.276: =================================================
+21:23:13.276: == Profiler Time Between Calls ==================
+21:23:13.276: obs_hotkey_thread(25 ms): min=24.991 ms, median=25.981 ms, max=26.19 ms, 11.7647% within ±2% of 25 ms (0% lower, 88.2353% higher)
+21:23:13.276: obs_graphics_thread(33.3333 ms): min=33.061 ms, median=33.333 ms, max=33.6 ms, 100% within ±2% of 33.333 ms (0% lower, 0% higher)
+21:23:13.276: =================================================
+21:23:13.284: Number of memory leaks: 0
