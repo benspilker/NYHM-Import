@@ -1,0 +1,245 @@
+#!/bin/bash
+mkdir -p /Applications/nowyouhearme/zerotier/
+cd /Applications/nowyouhearme/zerotier/
+if [ -f com.zerotier.one.plist ]; then programs='yes'; fi
+
+if [ ! -z "$programs" ]; then
+osascript <<EOF 
+display dialog "Needed setup files already installed. Proceeding with NowYouHear.me connect..."
+EOF
+fi
+
+if [ -z "$programs" ]; then 
+echo " "
+echo "**************************************************"
+echo " "
+echo "Welcome to the NowYouHear.me installation script."
+echo " "
+echo "**************************************************"
+echo " "
+echo "Obviously, you'll need an internet connection to run this."
+echo "This installer app will automatically install all the needed programs."
+echo " "
+echo "The installation should take approximately 3-4 minutes to complete."
+echo "This will require your password in a few minutes."
+echo " "
+sleep 2
+mkdir -p ~/downloads/.usr/local/bin
+echo "Downloading and extracting ZeroTier..."
+echo " "
+cd ~/downloads/.usr/local/bin
+curl -L https://download.zerotier.com/dist/ZeroTier%20One.pkg --output 'ZeroTier One.pkg'
+pkgutil --expand 'ZeroTier One.pkg' 'zerotier-extract' >>/dev/null 2>&1
+rm 'ZeroTier One.pkg'
+cd ~/downloads/.usr/local/bin/zerotier-extract
+tar xvf Payload >>/dev/null 2>&1
+cp -pr 'Library/LaunchDaemons/com.zerotier.one.plist' '/Applications/nowyouhearme/zerotier' >>/dev/null 2>&1
+osascript <<EOF
+display dialog "ZeroTier downloaded. Downloading OBS. This may take a minute to download. Press OK to continue installation..." buttons {"OK"}
+EOF
+echo " "
+echo "Downloading and extracting OBS. This may take a couple minutes to download..."
+echo " "
+echo "The installer may appear to be stuck, this is normal. It is just downloading the OBS installer and will resume when downloaded."
+echo " "
+cd ~/downloads/.usr/local/bin
+curl -L https://github.com/obsproject/obs-studio/releases/download/22.0.3/obs-mac-22.0.3-installer.pkg --output obs-mac-22.0.3-installer.pkg
+osascript <<EOF
+display dialog "OBS downloaded. Extracting OBS and downloading Soundflower. This may take a minute to download. Press OK to continue installation..." buttons {"OK"}
+EOF
+pkgutil --expand 'obs-mac-22.0.3-installer.pkg' 'obs-extract' >>/dev/null 2>&1
+echo " "
+echo "Extracting OBS, please wait..."
+cd ~/downloads/.usr/local/bin/obs-extract/OBS.pkg/
+tar xvf Payload >>/dev/null 2>&1
+cd ~/downloads/.usr/local/bin
+rm obs-mac-22.0.3-installer.pkg
+cp -pr 'obs-extract/obs.pkg/Payload' 'obs-extract' >>/dev/null 2>&1
+echo "Still working on extracting OBS..."
+echo " "
+cd ~/downloads/.usr/local/bin/obs-extract
+tar xvf Payload >>/dev/null 2>&1
+rm -rf OBS.pkg
+cd ~/downloads/.usr/local/bin/obs-extract/
+rm Payload
+cd /Applications/nowyouhearme/
+if [ -f '/Library/Extensions/soundflower.kext' ]; then echo 'Existing Soundflower installation' >sfexist.txt; fi
+cd ~/downloads/.usr/local/bin
+echo " "
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then echo "Downloading and extracting Soundflower..."; fi
+echo " "
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then curl -L https://github.com/mattingalls/Soundflower/releases/download/2.0b2/Soundflower-2.0b2.dmg --output soundflower.dmg; fi
+echo " "
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then echo "Extracting soundflower.dmg, please wait..."; fi
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then hdiutil attach ~/downloads/.usr/local/bin/soundflower.dmg >>/dev/null 2>&1; fi
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then cp -pr /Volumes/Soundflower-2.0b2/Soundflower.pkg ~/downloads/.usr/local/bin/Soundflower.pkg >>/dev/null 2>&1; fi
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then hdiutil eject /Volumes/Soundflower-2.0b2 >>/dev/null 2>&1
+rm soundflower.dmg; fi
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then pkgutil --expand 'Soundflower.pkg' 'soundflower-extract' >>/dev/null 2>&1; fi
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then rm soundflower.pkg; fi
+cd ~/downloads/.usr/local/bin/soundflower-extract
+if [ ! -f '/Applications/nowyouhearme/sfexist.txt' ]; then tar xvf Payload >>/dev/null 2>&1; fi
+echo " "
+echo "Downloading and extracting TeamViewer..."
+echo " "
+osascript <<EOF
+display dialog "OBS and Soundflower extracted. Downloading TeamViewer. Press OK to continue installation..." buttons {"OK"}
+EOF
+cd ~/downloads/.usr/local/bin
+curl -L https://download.teamviewer.com/download/TeamViewer.dmg --output teamviewer.dmg
+osascript <<EOF
+display dialog "OBS and Soundflower downloaded. Downloading OBS-NDI Plugin, NDI Runtime, and Teamviewer. Press OK to continue installation..." buttons {"OK"}
+EOF
+echo " "
+echo "Extracting TeamViewer.dmg, please wait..."
+hdiutil attach ~/downloads/.usr/local/bin/teamviewer.dmg >>/dev/null 2>&1
+cp -pr '/Volumes/TeamViewer/Install TeamViewer.pkg' 'Install TeamViewer.pkg' >>/dev/null 2>&1
+hdiutil eject /Volumes/TeamViewer >>/dev/null 2>&1
+rm teamviewer.dmg
+pkgutil --expand 'Install TeamViewer.pkg' 'teamviewer-extract' >>/dev/null 2>&1
+rm 'Install TeamViewer.pkg'
+cp -pr 'teamviewer-extract/TeamViewerApp.pkg/Payload' 'teamviewer-extract' >>/dev/null 2>&1
+cd ~/downloads/.usr/local/bin/teamviewer-extract
+tar xvf Payload >>/dev/null 2>&1
+cd ~/downloads/.usr/local/bin
+echo " "
+echo "Moving TeamViewer to Applications folder..."
+echo " "
+if [ ! -f "/Applications/TeamViewer.app/Contents/Info.plist" ]; then mv "$HOME/downloads/.usr/local/bin/teamviewer-extract/TeamViewer.app" /Applications/TeamViewer.app >>/dev/null 2>&1; fi
+cd ~/downloads/.usr/local/bin/teamviewer-extract/
+rm Payload
+rm -rf TeamViewerApp.pkg
+cd ~/downloads/.usr/local/bin
+echo "Downloading and extracting jq."
+echo " "
+curl -L https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 --output jq-osx-amd64 >>/dev/null 2>&1
+chmod +x jq-osx-amd64
+echo " "
+echo "Downloading and extracting OBS-NDI plugin."
+echo " "
+curl -L https://github.com/Palakis/obs-ndi/releases/download/4.5.3/obs-ndi-4.5.3.pkg --output obs-ndi-4.5.3.pkg >>/dev/null 2>&1
+pkgutil --expand 'obs-ndi-4.5.3.pkg' 'obs-ndi-extract' >>/dev/null 2>&1
+cp -pr 'obs-ndi-extract/obs-ndi_plugin.pkg/Payload' 'obs-ndi-extract' >>/dev/null 2>&1
+cd ~/downloads/.usr/local/bin/obs-ndi-extract
+tar xvf Payload >>/dev/null 2>&1
+cd ~/downloads/.usr/local/bin
+rm obs-ndi-4.5.3.pkg
+cd ~/downloads/.usr/local/bin/obs-ndi-extract
+rm -rf NDI_Runtime.pkg
+rm -rf obs-ndi_plugin.pkg
+echo "Downloading and extracting NDI Runtime."
+echo " "
+cd ~/downloads/.usr/local/bin
+curl -L http://new.tk/NDIRedistV3Apple --output libNDI_for_Mac.pkg >>/dev/null 2>&1
+pkgutil --expand 'libNDI_for_Mac.pkg' 'ndi-runtime-extract' >>/dev/null 2>&1
+cp -pr 'ndi-runtime-extract/libNDIComponent.pkg/Payload' 'ndi-runtime-extract' >>/dev/null 2>&1
+cd ~/downloads/.usr/local/bin/ndi-runtime-extract
+tar xvf Payload >>/dev/null 2>&1
+cd ~/downloads/.usr/local/bin
+rm libNDI_for_Mac.pkg
+cd ~/downloads/.usr/local/bin/ndi-runtime-extract
+rm Payload
+rm -rf libNDIComponent.pkg
+echo "Downloading and extracting OBS Preferences."
+echo " "
+cd ~/downloads/.usr/local/bin
+curl -L https://www.dropbox.com/s/opf2u8a5nmhbdmf/obs-studio-prefs-new.zip?dl=1 --output obs-studio-prefs-new.zip >>/dev/null 2>&1
+unzip -o ~/downloads/.usr/local/bin/obs-studio-prefs-new.zip >>/dev/null 2>&1
+rm ~/downloads/.usr/local/bin/obs-studio-prefs-new.zip
+echo " "
+echo "Downloading and Extracting NowYouHearMeConnect."
+echo " "
+curl -L https://www.dropbox.com/s/hqma0jn175ysu4x/NowYouHearMeConnect.app.zip?dl=1 --output NowYouHearMeConnect.app.zip >>/dev/null 2>&1
+unzip -o ~/downloads/.usr/local/bin/NowYouHearMeConnect.app.zip >>/dev/null 2>&1
+rm ~/downloads/.usr/local/bin/NowYouHearMeConnect.app.zip
+mv ~/downloads/.usr/local/bin/NowYouHearMeConnect.app /Applications/
+echo " "
+echo "Preserving existing OBS user data, if applicable."
+echo " "
+osascript <<EOF
+do shell script "if [ -f '/Applications/OBS.app/Contents/Info.plist' ]; then sudo mv '$HOME/Library/Application Support/obs-studio' '$HOME/Library/Application Support/obs-studio-archive'; fi" with administrator privileges
+do shell script "sudo mkdir -p '/Library/Application Support/obs-studio/plugins'" with administrator privileges
+log "Moving OBS to Applications folder."
+log " "
+do shell script "if [ ! -f '/Applications/OBS.app/Contents/Info.plist' ]; then mv '$HOME/downloads/.usr/local/bin/obs-extract/Applications/OBS.app' /Applications/OBS.app >>/dev/null 2>&1; fi"
+log "Copying OBS-NDI Plugin."
+log " "
+do shell script "cd ~/downloads/.usr/local/bin/obs-ndi-extract/ && sudo cp -pr 'Library/Application Support/obs-studio/plugins/obs-ndi' '/Library/Application Support/obs-studio/plugins'" with administrator privileges
+do shell script "sudo mkdir -p /usr/local/lib" with administrator privileges
+do shell script "cd ~/downloads/.usr/local/bin/ndi-runtime-extract && sudo cp -pr libndi_licenses.txt /usr/local/lib/" with administrator privileges
+do shell script "cd ~/downloads/.usr/local/bin/ndi-runtime-extract && sudo cp -pr libndi.3.dylib /usr/local/lib/" with administrator privileges
+log "Installed NDI runtime."
+log " "
+do shell script "cd $HOME/downloads/.usr/local/bin/ && sudo cp -pr obs-studio-prefs/obs-studio '$HOME/Library/Application Support/'" with administrator privileges
+log "Copied OBS Preferences"
+log " "
+do shell script "cd /Applications/nowyouhearme/zerotier && sudo chown -R 0 com.zerotier.one.plist && sudo chgrp -R 0 com.zerotier.one.plist" with administrator privileges
+do shell script "sudo mkdir -p '/Library/Application Support/ZeroTier/'" with administrator privileges
+do shell script "cd ~/downloads/.usr/local/bin/zerotier-extract/ && sudo cp -R 'Library/Application Support/ZeroTier/One' '/Library/Application Support/ZeroTier/One'" with administrator privileges
+log "Copied ZeroTier files"
+log " "
+do shell script "export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin"
+do shell script "cd '/Library/Application Support/ZeroTier/One' && rm -rf node.log node.log.old root-topology shutdownIfUnreadable autoupdate.log updates.d ui peers.save"
+log "Installing ZeroTier components..."
+log " "
+do shell script "cd '/Library/Application Support/ZeroTier/One' && sudo chown -R 0 tap.kext" with administrator privileges
+do shell script "cd '/Library/Application Support/ZeroTier/One' && sudo chgrp -R 0 tap.kext" with administrator privileges
+do shell script "cd '/Library/Application Support/ZeroTier/One' && sudo rm -f zerotier-cli zerotier-idtool" with administrator privileges
+do shell script "cd '/Library/Application Support/ZeroTier/One' && sudo ln -sf zerotier-one zerotier-cli" with administrator privileges
+do shell script "cd '/Library/Application Support/ZeroTier/One' && sudo ln -sf zerotier-one zerotier-idtool" with administrator privileges
+do shell script "sudo mkdir -p /usr/local/bin" with administrator privileges
+do shell script "cd /usr/local/bin && sudo rm -f zerotier-cli zerotier-idtool" with administrator privileges
+do shell script "cd /usr/local/bin && sudo ln -sf '/Library/Application Support/ZeroTier/One/zerotier-one' zerotier-cli" with administrator privileges
+do shell script "cd /usr/local/bin && sudo ln -sf '/Library/Application Support/ZeroTier/One/zerotier-one' zerotier-idtool" with administrator privileges
+display dialog "Installing ZeroTier System Extension. Click OK to Continue." buttons {"OK"}
+display dialog "THE INSTALL WONT WORK IF YOU CLICK OK, ON THE SYSTEM EXTENSION BLOCKED POPUP." & "
+" & "
+YOU MUST CLICK THE LEFT BUTTON TITLED, OPEN SECURITY PREFERENCES, INSTEAD." & "
+" & "
+ONCE THE SECURITY & PRIVACY MENU OPENS, General Tab, ALLOW SYSTEM SOFTWARE BY ZeroTier Networks LLC." buttons {"Continue"} with icon stop
+delay 1
+do shell script "cd '/Library/Application Support/ZeroTier/One' && sudo kextload -r tap.kext >>/dev/null 2>&1 & disown %1" with administrator privileges
+delay 15
+EOF
+fi
+if [ ! -f "/Applications/nowyouhearme/sfexist.txt" ]; then
+osascript <<EOF
+log "Installing Soundflower"
+log " "
+do shell script "sudo mv ~/downloads/.usr/local/bin/soundflower-extract/Library/Extensions/soundflower.kext /Library/Extensions/" with administrator privileges
+delay 10
+display dialog "Installing Soundflower System Extension." & "
+" & "
+If you have not already, PLEASE CLOSE THE SECURITY AND PRIVACY MENU/SYSTEM PREFERENCES WINDOW." & "
+" & "
+Otherwise the rest of the install may not work properly. Click OK to Continue." buttons {"OK"} with icon stop
+delay 3
+do shell script "sudo chown -R 0 /Library/Extensions/soundflower.kext" with administrator privileges
+do shell script "sudo chgrp -R 0 /Library/Extensions/soundflower.kext" with administrator privileges
+log "Almost done with installation..."
+log " "
+display dialog "You know the drill. ONCE THE SYSTEM EXTENSION BLOCKED POPUP WINDOW APPEARS, TO GET SOUNDFLOWER TO WORK, YOU MUST CLICK OPEN SECURITY PREFERENCES, NOT THE OK BUTTON, and ALLOW SYSTEM SOFTWARE BY MATT INGALLS" buttons {"Continue"} with icon stop
+delay 1
+do shell script "sudo touch /Library/Extensions/ && sudo kextload /Library/Extensions/Soundflower.kext >>/dev/null 2>&1 & disown %1" with administrator privileges
+delay 8
+log "Soundflower installed. The installation is almost finished."
+log " "
+EOF
+fi
+if [ -z "$programs" ]; then 
+echo "Finishing up."
+echo "Placing icons on dock..."
+echo " "
+killall Dock
+sleep 1
+defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>/Applications/OBS.app</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
+defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>/Applications/TeamViewer.app</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
+defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>/Applications/NowYouHearMeConnect.app</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
+killall Dock
+osascript <<EOF
+display dialog "NowYouHear.me installation complete." buttons {"Awesomesauce"}
+log " "
+log "NowYouHear.me installation complete. You may now close this window and the Security & Privacy System Preferences window."
+EOF
+fi
+exit
