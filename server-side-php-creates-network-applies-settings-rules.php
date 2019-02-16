@@ -31,7 +31,7 @@ $ch = curl_init();
 
 curl_setopt($ch, CURLOPT_URL, $posturl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, "{\"config\": {\"enableBroadcast\":true, \"ipAssignmentPools\":[{\"ipRangeStart\":\"172.22.172.1\" , \"ipRangeEnd\":\"172.22.172.4\"}] , \"tags\":[] , \"v4AssignMode\":{\"zt\":true},\"v6AssignMode\":{\"6plane\":false,\"rfc4193\":false,\"zt\":false}}}");
+curl_setopt($ch, CURLOPT_POSTFIELDS, "{\"config\": {\"enableBroadcast\":true, \"ipAssignmentPools\":[{\"ipRangeStart\":\"172.22.172.1\" , \"ipRangeEnd\":\"172.22.172.5\"}] , \"tags\":[] , \"v4AssignMode\":{\"zt\":true},\"v6AssignMode\":{\"6plane\":false,\"rfc4193\":false,\"zt\":false}}}");
 curl_setopt($ch, CURLOPT_POST, 1);
 
 $headers = array();
