@@ -1,7 +1,7 @@
-#!/usr/bin/env php
 <?php
-    
-$id = '83048a06327b807f';
+
+$id - getopt("i:");
+//$id = '83048a06327b807f';
 $preurl = 'https://my.zerotier.com/api/network/';
 $posturl = $preurl . $id;
     
