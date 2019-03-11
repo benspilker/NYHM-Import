@@ -1,0 +1,134 @@
+#!/bin/bash
+echo "******************************************" 
+echo " " 
+echo "         Welcome to NowYouHear.me     "
+echo " " 
+echo "******************************************" 
+echo " "
+echo "YOU NEED TO BE CONNECTED TO THE INTERNET FOR THIS TO WORK."
+echo " "
+echo "Enter your email in the dialog prompt."
+echo "Next you'll be joined to your NowYouHear.me network."
+echo " "
+echo "This will require your computer password."
+echo " "
+sleep 2
+email=$(/usr/bin/osascript <<EOT
+do shell script "sudo launchctl load /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+set email to the text returned of (display dialog "What is your email?" default answer "" buttons {"OK"})
+EOT)
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | ~/downloads/.usr/local/bin/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+ztid=$(echo $ztid | ~/downloads/.usr/local/bin/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+if [ -z "$ztid" ]; then
+email=$(/usr/bin/osascript <<EOT
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "
+" & "
+What is your email?" default answer "" buttons {"OK"})
+EOT)
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | ~/downloads/.usr/local/bin/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+ztid=$(echo $ztid | ~/downloads/.usr/local/bin/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+fi
+if [ -z "$ztid" ]; then
+email=$(/usr/bin/osascript <<EOT
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "
+" & "
+What is your email?" default answer "" buttons {"OK"})
+EOT)
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | ~/downloads/.usr/local/bin/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+ztid=$(echo $ztid | ~/downloads/.usr/local/bin/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+fi
+if [ -z "$ztid" ]; then
+osascript <<EOT
+display dialog "Email account still not found. Go to www.NowYouHear.me and confirm your subscription is still valid and active." buttons {"OK"}
+EOT
+sleep 2
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer buttons {"OK"})
+EOT)
+
+passcodeconfig=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | ~/downloads/.usr/local/bin/jq-osx-amd64 '.description' | sed -e 's/^"//' -e 's/"$//')
+
+if [[ $passcode == " " ]]; then
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer buttons {"OK"})
+EOT)
+fi
+if [[ $passcode == " " ]]; then
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+osascript <<EOT
+display dialog "Passcode still not found. Go to www.NowYouHear.me and confirm your subscription is valid and active." buttons {"OK"}
+EOT
+fi
+passcheck1="2"
+passcheck2="3"
+if [ ! -z $passcodeconfig ]; then passcheck1="1"; fi
+if [ $passcode == $passcodeconfig ]; then passcheck2="1"; fi
+if [ $passcheck1 == $passcheck2 ]; then
+echo " "
+echo "Connecting to your nowyouhear.me network..."
+echo " "
+osascript <<EOT
+do shell script "sudo /usr/local/bin/zerotier-cli join $ztid" with administrator privileges
+display dialog "You are now connected from your NowYouHear.me network." & "
+" & "
+DO NOT CLOSE THE TERMINAL WINDOW." & "
+KEEP THE TERMINAL WINDOW OPEN." buttons {"For sure, my dude."} with icon stop
+delay 2
+EOT
+echo "******************************************************************************"
+echo " " 
+echo "You are now connected to your NowYouHear.me network! Keep this window open.     " 
+echo " " 
+echo "******************************************************************************"
+echo " "
+echo " "
+echo "Your computer's name is $(networksetup -getcomputername)."
+echo " "
+echo "Tell the Listener to find $(networksetup -getcomputername)"
+echo "Listed on their computer's NDI-Studio-Monitor Menu."
+echo " "
+echo " "
+echo "You may minimize the console. BUT DON'T CLOSE IT."
+echo " "
+sleep 2
+echo "When you're done hosting this session and want to exit, press SPACEBAR."
+echo "to PROPERLY disconnect and exit..."
+echo " "
+read -n1 -r -p "This will also require your password to disconnect." key
+if [ "$key" = '' ]; then
+echo " "
+echo " "
+echo "Spacebar pressed. Once disconnected, this window will automatically close."
+echo " "
+echo "Disconnecting from your nowyouhear.me network. Please wait..."
+osascript <<EOT
+do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
+delay 1
+do shell script "sudo launchctl unload /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+delay 0.5
+display dialog "You are now disconnected from your NowYouHear.me network. Terminal console will now close" buttons {"OK"}
+EOT
+fi
+fi
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
