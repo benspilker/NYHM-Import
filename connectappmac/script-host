@@ -1,0 +1,394 @@
+#!/bin/bash
+echo "******************************************" 
+echo " " 
+echo "         Welcome to NowYouHear.me     "
+echo " " 
+echo "******************************************" 
+echo " "
+echo "YOU NEED TO BE CONNECTED TO THE INTERNET FOR THIS TO WORK."
+echo " "
+sleep 1
+if [ ! -f /Applications/.nowyouhearme/jq-osx-amd64 ]; then cp -pr ~/Downloads/.usr/local/bin/jq-osx-amd64 /Applications/.nowyouhearme/jq-osx-amd64; fi
+chmod +x /Applications/.nowyouhearme/jq-osx-amd64
+if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
+oldztid=$(</Applications/.nowyouhearme/last-session-ztid.txt)
+osascript <<EOT
+display dialog "NowYouHearMe Connect was not PROPERLY exited the last time it ran." & "\n" & "\nBecause of this, your computer may still be connected to the NowYouHear.me network from the last session." & "\n" & "\nClick OK to clear out these settings." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+do shell script "sudo launchctl load /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+delay 1
+do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&1" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+display dialog "Your previous session settings have been cleared" & "\n" & "\nClick OK to start a new NowYouHear.me session." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+delay 1
+EOT
+fi
+echo " "
+echo "Enter your nowyouhear.me account email and pin in the dialog prompts."
+echo " "
+echo "Next you'll be joined to your NowYouHear.me network."
+echo " "
+echo "This will require your computer password."
+echo " "
+sleep 2
+email=$(/usr/bin/osascript <<EOT
+set emailresp to display dialog "What is your NowYouHear.me account email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK" , "No Account? Create One Here"}
+if button returned of emailresp is "No Account? Create One Here" then 
+	do shell script "if [ -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/join-now-founding-members/ -a 'Google Chrome.app'; fi"
+	do shell script "if [ ! -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/join-now-founding-members/ -a Safari.app; fi"
+end if
+if button returned of emailresp is "OK" then
+	delay 0.5
+	set email to the text returned of emailresp
+end if
+EOT)
+if [ -z "$email" ]; then
+sleep 3
+osascript <<EOT
+display dialog "NowYouHearMe Connect will now exit so that you can create your account" & "\n" & "\nNote, ONLY THE HOST NEEDS TO CREATE AN ACCOUNT." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+EOT
+sleep 1
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | /Applications/.nowyouhearme/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+echo " "
+echo "Looking up account info..."
+echo " "
+ztid=$(echo $ztid | /Applications/.nowyouhearme/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+if [ -z "$ztid" ]; then
+email=$(/usr/bin/osascript <<EOT
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+if [ -z "$email" ]; then
+sleep 1
+osascript <<EOT
+display dialog "Well, that’s dumb? Why would you not enter anything? NowYouHearMe Connect will now exit." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"My Bad"}
+EOT
+sleep 1
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | /Applications/.nowyouhearme/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+ztid=$(echo $ztid | /Applications/.nowyouhearme/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+fi
+if [ -z "$ztid" ]; then
+email=$(/usr/bin/osascript <<EOT
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+if [ -z "$email" ]; then
+sleep 1
+osascript <<EOT
+display dialog "Well, that’s dumb? Why would you not enter anything? NowYouHearMe Connect will now exit." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"My Bad"}
+EOT
+sleep 1
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | /Applications/.nowyouhearme/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+ztid=$(echo $ztid | /Applications/.nowyouhearme/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+fi
+if [ -z "$ztid" ]; then
+osascript <<EOT
+display dialog "Email account still not found." & "\n" & "\nClicking OK will exit and take you to www.NowYouHear.me." & "\n" & "\nLog in to the website to confirm your subscription is still valid and active." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+EOT
+sleep 1
+if [ -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me -a 'Google Chrome.app'; fi
+if [ ! -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me -a Safari.app; fi
+sleep 2
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+passcodeconfig=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | /Applications/.nowyouhearme/jq-osx-amd64 '.description' | sed -e 's/^"//' -e 's/"$//')
+if [[ $passcode == " " ]]; then
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+fi
+if [[ $passcode == " " ]]; then
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+osascript <<EOT
+display dialog "Passcode still not found. Go to www.NowYouHear.me and confirm your subscription is valid and active." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+EOT
+fi
+passcheck1="2"
+passcheck2="3"
+if [ ! -z $passcodeconfig ]; then passcheck1="1"; fi
+if [ $passcode == $passcodeconfig ]; then passcheck2="1"; fi
+if [ $passcheck1 == $passcheck2 ]; then
+echo " "
+echo "Connecting to your NowYouHear.me network..."
+echo " "
+count=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | /Applications/.nowyouhearme/jq-osx-amd64 '.totalMemberCount')
+count1=$count
+if (($count == 0 )); then count1=1; fi
+if (($count == 5 )); then count1=5; fi
+filedate=$(date "+%m-%d-%y")
+echo $ztid >/Applications/.nowyouhearme/last-session-ztid.txt
+osascript <<EOT
+do shell script "sudo launchctl load /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/connectfirstrun.txt 2>&1 >/dev/null" with administrator privileges
+do shell script "if [ -f ~/Downloads/.usr/local/bin/jq-osx-amd64 ]; then sudo rm -rf ~/Downloads/.usr; fi" with administrator privileges
+do shell script "if [ -f ~/'Library/Application Support/obs-studio/global.ini' ]; then sudo cp -pr ~/'Library/Application Support/obs-studio' ~/'Library/Application Support/obs-studio-archive-$filedate'; fi" with administrator privileges
+do shell script "sudo /usr/local/bin/zerotier-cli join $ztid" with administrator privileges
+do shell script "sudo cp -pr /Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/obs-studio ~/'Library/Application Support/'" with administrator privileges
+do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'" with administrator privileges
+do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
+do shell script "sudo cp -r /Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/Untitled-host-with-sf-as-aux1.json ~/'Library/Application Support/obs-studio/basic/scenes/'" with administrator privileges
+do shell script "sudo mv ~/'Library/Application Support/obs-studio/basic/scenes/Untitled-host-with-sf-as-aux1.json' ~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'" with administrator privileges
+do shell script "sudo cp -r /Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/global-mainoutput-true.ini  ~/'Library/Application Support/obs-studio/'" with administrator privileges
+do shell script "sudo mv ~/'Library/Application Support/obs-studio/global-mainoutput-true.ini' ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
+display dialog "You are now connected to your NowYouHear.me network." & "\n" & "\nYou can add up to 5 devices to your own NowYouHear.me account." & "\n" & "\nContact NowYouHear.me support if you need to remove unused devices." & "\n" & "\nYour account has used $count1 out of 5 available devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"I Understand, Let’s Continue"}
+delay 1
+display dialog "Call your NowYouHear.me friend on the phone and confirm that they are ready to Listen to your session." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Yes, we are ready"}
+delay 1
+display dialog "Now you, as the Host, need to setup your computer audio to route out sound." & "
+" & "
+First, open your DAW (Garageband, or Logic, or Ableton, etc.)" buttons {"Next"}
+delay 2
+set sfroute to display dialog "Next, you’ll need to route audio from your DAW to a virtual audio channel called Soundflower (2ch)." & "
+" & "
+Open your DAWs preferences, click the Audio tab, and set your DAWs audio OUTPUT to Soundflower (2ch)." & "
+" & "
+This will temporarily mute your DAW until the next few steps." with icon caution buttons {"How do I do that?", "Next"}
+if button returned of sfroute is "How do I do that?" then
+	do shell script "if [ -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/how-to-soundflower/ -a 'Google Chrome.app'; fi"
+	do shell script "if [ ! -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/how-to-soundflower/ -a Safari.app; fi"
+	delay 25
+end if
+if button returned of sfroute is "Next" then
+	delay 4
+end if
+set obsopen to display dialog "Click to automatically open OBS." & "
+" & "
+OBS MUST STAY OPEN FOR SOUND TO PLAY." with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Next", "Wait, I'm Still Routing Soundflower"}
+if button returned of obsopen is "Wait, I'm Still Routing Soundflower" then
+display dialog "Next, you’ll need to route audio from your DAW to a virtual audio channel called Soundflower (2ch)." & "
+" & "
+Open your DAWs preferences, click the Audio tab, and set your DAWs audio OUTPUT to Soundflower (2ch)." & "
+" & "
+This will temporarily mute your DAW until the next few steps." & "
+" & "
+Clicking Next will automatically open OBS, since that is the next step." with icon caution buttons {"Next"}
+	delay 2
+end if
+if button returned of obsopen is "Next" then
+	delay 0.5
+end if
+tell application "OBS" to activate
+delay 1
+display dialog "Go over to your DAW and play some audio. If you hear sound, then you are almost ready for the Listener to hear you." buttons {"Next"}
+delay 4
+set obssound to display dialog "You can drag this dialog box wherever you want." & "
+" & "
+With OBS open and your DAW playing something THROUGH SOUNDFLOWER (2CH) OUTPUT, do you now hear sound?" buttons {"No, help me Troubleshoot?", "Yes"}
+if button returned of obssound is "Yes" then
+	delay 0.5
+end if
+if button returned of obssound is "No, help me Troubleshoot?" then
+	display dialog "Click Next to automatically open System Preferences." with icon file ("/Applications/System Preferences.app/Contents/Resources/PrefApp.icns" as POSIX file) buttons {"Next"}
+	tell application "System Preferences" to activate
+	delay 2
+	display dialog "Inside of System Preferences, click the Sound tab. (second row, far right.)" with icon file ("/Applications/System Preferences.app/Contents/Resources/PrefApp.icns" as POSIX file) buttons {"Next"}
+	delay 2
+	display dialog "Inside of the Sound tab, Confirm your OUTPUT is either your internal speakers or your audio interface." & "
+" & "
+Make sure your system audio OUTPUT is NOT SOUNDFLOWER." with icon file ("/Applications/System Preferences.app/Contents/Resources/PrefApp.icns" as POSIX file) buttons {"Next"}
+	set obssound2 to display dialog "You can drag this dialog box wherever you want." & "
+" & "
+Try playing something through your DAW again." & "
+" & "
+Do you hear sound now?" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No", "Yes"}
+	if button returned of obssound2 is "Yes" then
+		tell application "System Preferences" to quit
+		delay 0.5
+	end if
+	if button returned of obssound2 is "No" then
+		tell application "System Preferences" to quit
+		delay 0.5
+		display dialog "OBS may be giving you trouble." & "
+" & "
+However, the NowYouHearMe Connect App may be able to automatically fix a common OBS bug." & "
+" & "
+Click OK to automatically close OBS so NowYouHearMe Connect can attempt to resolve the problem." & "
+" & "
+This will also require your computer password." buttons {"OK"}
+		tell application "OBS" to quit
+		delay 0.5
+		do shell script "sudo rm -rf ~/‘Library/Application Support/obs-studio/basic/scenes/Untitled.json’" with administrator privileges
+		do shell script "sudo cp -pr /Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/Untitled-host-with-sf-as-aux2.json ~/‘Library/Application Support/obs-studio/basic/scenes/‘" with administrator privileges
+		do shell script "sudo mv ~/‘Library/Application Support/obs-studio/basic/scenes/‘ Untitled-host-with-sf-as-aux2.json ~/‘Library/Application Support/obs-studio/basic/scenes/Untitled.json’" with administrator privileges
+		set obssound3 to display dialog "You can drag this dialog box wherever you want." & "
+" & "
+Try playing something through your DAW again." & "
+" & "
+Do you hear sound now?" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No", "Yes"}
+		if button returned of obssound3 is "Yes" then
+			delay 0.5
+		end if
+		if button returned of obssound3 is "No" then
+			display dialog "OBS may still be giving you trouble." & "
+" & "
+Click OK to follow the OBS troubleshooting PDF guide." buttons {"OK"}
+			do shell script "open -a Safari.app /Applications/NowYouHearMeConnect.app/Contents/Resources/troubleshooting-obsmac.pdf"
+			delay 10
+			display dialog "You can drag this dialog box wherever you want." & "
+" & "
+Once you have followed the .pdf instructions, try playing something through your DAW again." & "
+" & "
+Click OK when you hear sound." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+		end if
+	end if
+end if
+display dialog "Now that you hear your DAW’s audio, tell the Listener over the phone that:" & "
+" & "
+You (The HOST) are now Broadcasting sound." with icon stop buttons {"I Told The Listener I’m Ready"}
+tell application "Terminal" to activate
+log " "
+log " "
+log " "
+log " "
+log " "
+log " "
+log "******************************************************************************"
+log " " 
+log "You are connected to your NowYouHear.me network! Keep this window open.     " 
+log " " 
+log "******************************************************************************"
+log " "
+log " "
+log "Your computer's name is $(networksetup -getcomputername)."
+log " "
+log " "
+log " "
+log " "
+log "Your OBS preferences are setup to send audio from your computer."
+log " "
+log " "
+log "NowYouHearMe Connect."
+log " "
+log " "
+log " " 
+log "You are the Host within this session." 
+log " "
+delay 3
+set listenconnect to display dialog "Was the Listener computer able to connect to hear your computer audio?" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No, Retry?" , "Yes"}
+if button returned of listenconnect is "Yes" then
+delay 0.5
+end if
+if button returned of listenconnect is "No, Retry?" then 
+delay 2
+set listenconnect2 to display dialog "Was the Listener computer able to connect to hear your computer audio?" & "\n" & "\nIf not, you'll have to exit NowYouHear.me and start over." & "\n" & "\nYour computer password will be required to PROPERLY exit." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No, Exit to Try Again" , "Yes"}
+if button returned of listenconnect2 is "Yes" then
+delay 0.5
+end if
+if button returned of listenconnect2 is "No, Exit to Try Again" then 
+delay 2
+do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
+delay 1
+do shell script "sudo launchctl unload /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+delay 1
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+tell application "OBS" to quit
+tell application "Terminal"
+	activate
+	do script "/Applications/NowYouHearMeConnect.app/Contents/Resources/script-host"
+end tell
+delay 0.5
+end if
+end if
+EOT
+if [ ! -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
+osascript <<EOT
+delay 2.5
+display dialog "Finally, the Listener needs to be able to see and control the Hosts screen. Click Next to open TeamViewer." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Next"}
+EOT
+osascript -e 'tell application "TeamViewer" to activate' >>/dev/null 2>&1
+sleep 1
+/Applications/TeamViewer.app/Contents/MacOS/TeamViewer >>/dev/null 2>&1
+sleep 1
+osascript <<EOT
+delay 2
+display dialog "The Host must allow Teamviewer to control this computer." & "
+" & "
+Once TeamViewer is an allowed app, give the Listener your TeamViewer ID and TeamViewer password over the phone." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Next"}
+delay 15
+display dialog "Once the Listener is connected, they should now be able to hear and see your computer." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"NowYouHearMe!"}
+log " "
+tell application "Terminal" to activate
+delay 1
+display dialog "You did it!" & "
+" & "
+You are all setup and ready to collaborate!" & "
+" & "
+" & "
+DO NOT CLOSE THE TERMINAL WINDOW." & "
+" & "
+You may minimize this Terminal window." & "
+BUT DO NOT CLOSE lT." & "
+" & "
+KEEP THE TERMINAL WINDOW OPEN." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"WOOHOO"}
+log " "
+log " "
+log "You may minimize this Terminal window. BUT DO NOT CLOSE lT."
+log " "
+log " "
+delay 2
+log "When you are done hosting this session and want to exit..."
+log "TO PROPERLY disconnect and exit. Press SPACEBAR."
+log " "
+delay 5
+display dialog "Remember, when you are done hosting this session and want to exit, \nYOU MUST PROPERLY EXIT." & "\n" & "\nTO PROPERLY exit, make Terminal the focus window and press SPACEBAR." with icon file ("/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" as POSIX file) buttons {"For sure, my dude."}
+EOT
+echo " "
+echo "This will also require your password to disconnect."
+echo " "
+read -n1 -r -p "TO PROPERLY disconnect and exit. Press SPACEBAR." key
+if [ "$key" = '' ]; then
+echo " "
+echo " "
+echo " "
+echo "Spacebar pressed. Once disconnected, this window will automatically close."
+echo "Disconnecting from your nowyouhear.me network. Please wait..."
+osascript <<EOT
+do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
+delay 1
+do shell script "sudo launchctl unload /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+delay 0.5
+display dialog "You are now disconnected from your NowYouHear.me network. Terminal, OBS, and Teamviewer will close automatically." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+tell application "OBS" to quit
+display dialog "You may also want to change your DAW's audio output preferences back to your internal speakers or audio interface (setting it back to normal)." & "
+" & "
+Also sometimes, when OBS or TeamViewer close out, it will come up with an error that it quit unexpectedly. This error can be ignored." & "
+" & "
+Thanks for using NowYouHear.me!" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"WOOHOO"}
+do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio'" with administrator privileges
+do shell script "if [ -f ~/'Library/Application Support/obs-studio-archive-$filedate/global.ini' ]; then sudo mv ~/'Library/Application Support/obs-studio-archive-$filedate' ~/'Library/Application Support/obs-studio'; fi" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+EOT
+fi
+fi
+osascript -e 'tell application "TeamViewer" to quit'
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit

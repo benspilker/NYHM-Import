@@ -1,0 +1,522 @@
+#!/bin/bash
+echo "******************************************" 
+echo " " 
+echo "         Welcome to NowYouHear.me     "
+echo " " 
+echo "******************************************" 
+echo " "
+echo "YOU NEED TO BE CONNECTED TO THE INTERNET FOR THIS TO WORK."
+echo " "
+sleep 1
+if [ ! -f /Applications/.nowyouhearme/jq-osx-amd64 ]; then cp -pr ~/Downloads/.usr/local/bin/jq-osx-amd64 /Applications/.nowyouhearme/jq-osx-amd64; fi
+chmod +x /Applications/.nowyouhearme/jq-osx-amd64
+if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
+oldztid=$(</Applications/.nowyouhearme/last-session-ztid.txt)
+osascript <<EOT
+display dialog "NowYouHearMe Connect was not PROPERLY exited the last time it ran." & "\n" & "\nBecause of this, your computer may still be connected to the NowYouHear.me network from the last session." & "\n" & "\nClick OK to clear out these settings." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+do shell script "sudo launchctl load /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+delay 1
+do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&1" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+display dialog "Your previous session settings have been cleared" & "\n" & "\nClick OK to start a new NowYouHear.me session." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+delay 1
+EOT
+fi
+osascript <<EOT
+display dialog "Call your friend on the phone and confirm that they are available to Host a session." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Yes, We’re Ready"}
+EOT
+echo " "
+echo " "
+echo "Enter the nowyouhear.me account email and pin in the dialog prompts."
+echo " "
+echo "This will also require your computer password."
+echo " "
+sleep 2
+email=$(/usr/bin/osascript <<EOT
+set email to the text returned of (display dialog "As a Listener you are considered a guest." & "\nYou do not need your own NowYouHear.me account." & "\n" & "\nHowever, the account holder could potentially swap roles and be a Listener." & "\n" & "\nYou must enter the email of the account holder." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+if [ -z "$email" ]; then
+sleep 1
+osascript <<EOT
+display dialog "Well, that’s dumb? Why would you not enter anything? NowYouHearMe Connect will now exit." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"My Bad"}
+EOT
+sleep 1
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | /Applications/.nowyouhearme/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+echo " "
+echo "Looking up account info..."
+echo " "
+ztid=$(echo $ztid | /Applications/.nowyouhearme/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+if [ -z "$ztid" ]; then
+email=$(/usr/bin/osascript <<EOT
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is the NowYouHear.me account holder’s email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+if [ -z "$email" ]; then
+sleep 1
+osascript <<EOT
+display dialog "Well, that’s dumb? Why would you not enter anything? NowYouHearMe Connect will now exit." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"My Bad"}
+EOT
+sleep 1
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | /Applications/.nowyouhearme/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+ztid=$(echo $ztid | /Applications/.nowyouhearme/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+fi
+if [ -z "$ztid" ]; then
+email=$(/usr/bin/osascript <<EOT
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is the NowYouHear.me account holder’s email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+if [ -z "$email" ]; then
+sleep 1
+osascript <<EOT
+display dialog "Well, that’s dumb? Why would you not enter anything? NowYouHearMe Connect will now exit." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"My Bad"}
+EOT
+sleep 1
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | /Applications/.nowyouhearme/jq-osx-amd64 '.[].config | select(.name == "'$email'")')
+ztid=$(echo $ztid | /Applications/.nowyouhearme/jq-osx-amd64 .id | sed -e 's/^"//' -e 's/"$//')
+fi
+if [ -z "$ztid" ]; then
+osascript <<EOT
+display dialog "Email account still not found. Have the account holder go to www.NowYouHear.me and confirm their subscription is still valid and active." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+EOT
+sleep 2
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+passcodeconfig=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | /Applications/.nowyouhearme/jq-osx-amd64 '.description' | sed -e 's/^"//' -e 's/"$//')
+if [[ $passcode == " " ]]; then
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+fi
+if [[ $passcode == " " ]]; then
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+passcode=$(/usr/bin/osascript <<EOT
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+EOT)
+fi
+if [ $passcode != $passcodeconfig ]; then 
+osascript <<EOT
+display dialog "Passcode still not found. Have the account holder go to www.NowYouHear.me and confirm their subscription is valid and active." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+EOT
+fi
+passcheck1="2"
+passcheck2="3"
+if [ ! -z $passcodeconfig ]; then passcheck1="1"; fi
+if [ $passcode == $passcodeconfig ]; then passcheck2="1"; fi
+if [ $passcheck1 == $passcheck2 ]; then
+echo " "
+echo "Connecting to the account holder’s NowYouHear.me network..."
+echo " "
+count=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | /Applications/.nowyouhearme/jq-osx-amd64 '.totalMemberCount')
+count1=$count
+if (($count == 0 )); then count1=1; fi
+if (($count == 5 )); then count1=5; fi
+filedate=$(date "+%m-%d-%y")
+echo $ztid >/Applications/.nowyouhearme/last-session-ztid.txt
+osascript <<EOT
+do shell script "sudo launchctl load /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/connectfirstrun.txt 2>&1 >/dev/null" with administrator privileges
+do shell script "if [ -f ~/Downloads/.usr/local/bin/jq-osx-amd64 ]; then sudo rm -rf ~/Downloads/.usr; fi" with administrator privileges
+do shell script "if [ -f ~/'Library/Application Support/obs-studio/global.ini' ]; then sudo cp -pr ~/'Library/Application Support/obs-studio' ~/'Library/Application Support/obs-studio-archive-$filedate'; fi" with administrator privileges
+do shell script "sudo /usr/local/bin/zerotier-cli join $ztid" with administrator privileges
+do shell script "sudo cp -pr /Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/obs-studio ~/'Library/Application Support/'" with administrator privileges
+do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'" with administrator privileges
+do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
+do shell script "sudo cp -r /Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/global-mainoutput-false.ini  ~/'Library/Application Support/obs-studio/'" with administrator privileges
+do shell script "sudo mv ~/'Library/Application Support/obs-studio/global-mainoutput-false.ini' ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
+display dialog "You are now connected to the Host's NowYouHear.me network." & "\n" & "\nThe Host's NowYouHear.me account can have up to 5 devices." & "\n" & "\nHave the Host contact NowYouHear.me support if you need to remove unused devices." & "\n" & "\nThe Host's account has used $count1 out of 5 available devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"I Understand, Let's Continue"}
+delay 1
+tell application "Terminal" to activate
+log " "
+log "******************************************************************************"
+log " " 
+log "You are connected to $email's NowYouHear.me network!"
+log " " 
+log "Keep this window open." 
+log " " 
+log "******************************************************************************"
+log " "
+log " "
+log " "
+log " "
+log " "
+log " "
+log " "
+log " "
+log " "
+display dialog "You must now wait until the Host is ready to Broadcast sound..." & "\n" & "\nYou will know the HOST is ready when they see a dialog box that says..." & "\n" & "\n(You are now Broadcasting sound, with a stop sign icon.)" with icon stop buttons {"Yes, we are both ready"}
+delay 1
+EOT
+( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch.txt ) & sleep 1 ; kill $!
+ndisearch=$(</Applications/.nowyouhearme/ndisearch.txt)
+name=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+rm /Applications/.nowyouhearme/ndisearch.txt
+name2=yes
+if [ -z "$name" ]; then
+osascript <<EOT
+display dialog "No NowYouHear.me peers discovered." & "\n" & "\nConfirm that the Host is running OBS?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
+EOT
+( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch2.txt ) & sleep 1 ; kill $!
+ndisearch2=$(</Applications/.nowyouhearme/ndisearch2.txt)
+name2=$(echo $ndisearch2 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+rm /Applications/.nowyouhearme/ndisearch2.txt
+name=$name2
+fi
+if [ -z "$name2" ]; then
+osascript <<EOT
+display dialog "Still no NowYouHear.me peers were discovered." & "\n" & "\nIt is possible that you or The HOST computer did not successfully connect to the NowYouHear.me network (Even though it says you are connected)." & "\n" & "\nTo re-attempt to connect with the HOST, you and the Host should start-over." & "\n" & "\nYour computer password will be required to properly exit and start over." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Start Over"}
+EOT
+if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
+oldztid=$(</Applications/.nowyouhearme/last-session-ztid.txt)
+osascript <<EOT
+do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&1" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+delay 1
+tell application "Terminal"
+	activate
+	do script "/Applications/NowYouHearMeConnect.app/Contents/Resources/script-listener"
+end tell
+delay 0.5
+EOT
+fi
+if [ ! -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
+fi
+sleep 3
+osascript <<EOT
+tell application "Terminal" to activate
+EOT
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo "******************************************************************************"
+echo " " 
+echo "You are connected to $email's NowYouHear.me network!"
+echo " " 
+echo "Keep this window open." 
+echo " " 
+echo "******************************************************************************"
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo " "
+echo "Your OBS preferences are setup to receive audio from computer:"
+echo " "
+echo "$name"
+echo " "
+echo " "
+echo " "
+echo " " 
+echo "NowYouHearMe Connect."
+echo " "
+echo " "
+echo " " 
+echo "You are the Listener within this session." 
+echo " "
+echo " "
+echo " "
+echo '{
+    "current_program_scene": "Scene",
+    "current_scene": "Scene",
+    "current_transition": "Fade",
+    "groups": [],
+    "modules": {
+        "auto-scene-switcher": {
+            "active": false,
+            "interval": 300,
+            "non_matching_scene": "",
+            "switch_if_not_matching": false,
+            "switches": []
+        },
+        "output-timer": {
+            "autoStartRecordTimer": false,
+            "autoStartStreamTimer": false,
+            "recordTimerHours": 0,
+            "recordTimerMinutes": 0,
+            "recordTimerSeconds": 30,
+            "streamTimerHours": 0,
+            "streamTimerMinutes": 0,
+            "streamTimerSeconds": 30
+        },
+        "scripts-tool": []
+    },
+    "name": "Untitled",
+    "preview_locked": false,
+    "quick_transitions": [
+        {
+            "duration": 300,
+            "hotkeys": [],
+            "id": 1,
+            "name": "Cut"
+        },
+        {
+            "duration": 300,
+            "hotkeys": [],
+            "id": 2,
+            "name": "Fade"
+        }
+    ],
+    "saved_projectors": [],
+    "scaling_enabled": false,
+    "scaling_level": 0,
+    "scaling_off_x": 0.0,
+    "scaling_off_y": 0.0,
+    "scene_order": [
+        {
+            "name": "Scene"
+        }
+    ],
+    "sources": [
+        {
+            "deinterlace_field_order": 0,
+            "deinterlace_mode": 0,
+            "enabled": true,
+            "flags": 0,
+            "hotkeys": {},
+            "id": "image_source",
+            "mixers": 0,
+            "monitoring_type": 0,
+            "muted": false,
+            "name": "Image",
+            "private_settings": {},
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "settings": {
+                "file": "/Applications/NowYouHearMeConnect.app/Contents/Resources/NYHM-Listener.png"
+            },
+            "sync": 0,
+            "volume": 1.0
+        },
+        {
+            "deinterlace_field_order": 0,
+            "deinterlace_mode": 0,
+            "enabled": true,
+            "flags": 0,
+            "hotkeys": {
+                "OBSBasic.SelectScene": [],
+                "libobs.hide_scene_item.Image": [],
+                "libobs.hide_scene_item.NDI™ Source": [],
+                "libobs.show_scene_item.Image": [],
+                "libobs.show_scene_item.NDI™ Source": []
+            },
+            "id": "scene",
+            "mixers": 0,
+            "monitoring_type": 0,
+            "muted": false,
+            "name": "Scene",
+            "private_settings": {},
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "settings": {
+                "custom_size": false,
+                "id_counter": 9,
+                "items": [
+                    {
+                        "align": 5,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "bounds_align": 0,
+                        "bounds_type": 0,
+                        "crop_bottom": 0,
+                        "crop_left": 0,
+                        "crop_right": 0,
+                        "crop_top": 0,
+                        "group_item_backup": false,
+                        "id": 8,
+                        "locked": true,
+                        "name": "NDI™ Source",
+                        "pos": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "private_settings": {},
+                        "rot": 0.0,
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "scale_filter": "disable",
+                        "visible": true
+                    },
+                    {
+                        "align": 5,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "bounds_align": 0,
+                        "bounds_type": 0,
+                        "crop_bottom": 0,
+                        "crop_left": 0,
+                        "crop_right": 0,
+                        "crop_top": 0,
+                        "group_item_backup": false,
+                        "id": 9,
+                        "locked": true,
+                        "name": "Image",
+                        "pos": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "private_settings": {},
+                        "rot": 0.0,
+                        "scale": {
+                            "x": 1.7367707490921021,
+                            "y": 1.7375271320343018
+                        },
+                        "scale_filter": "disable",
+                        "visible": true
+                    }
+                ]
+            },
+            "sync": 0,
+            "volume": 1.0
+        },
+        {
+            "deinterlace_field_order": 0,
+            "deinterlace_mode": 0,
+            "enabled": true,
+            "flags": 0,
+            "hotkeys": {
+                "libobs.mute": [],
+                "libobs.push-to-mute": [],
+                "libobs.push-to-talk": [],
+                "libobs.unmute": []
+            },
+            "id": "ndi_source",
+            "mixers": 255,
+            "monitoring_type": 1,
+            "muted": false,
+            "name": "NDI™ Source",
+            "private_settings": {},
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "settings": {
+                "ndi_bw_mode": 2,
+                "ndi_fix_alpha_blending": false,' >~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'
+
+fullname=$(echo $name | sed 's/$/ (OBS)/')
+quote='"'
+ndi='"ndi_source_name": "'
+fullline=$ndi$fullname$quote
+
+echo $fullline >>~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'
+echo '},
+            "sync": 0,
+            "volume": 1.0
+        }
+    ],
+    "transition_duration": 300,
+    "transitions": []
+}' >>~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'
+sleep 1
+osascript <<EOT
+tell application "OBS" to activate
+delay 3
+display dialog "You as the Listener should now be able to hear the Host’s computer: \n\n$name" & "\n" & "\nHave the Host play audio through their DAW." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"NowYouHearMe!"}
+delay 3  
+display dialog "Finally, you as the Listener need to be able to see and control the Hosts screen. Click Next to open TeamViewer." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Next"}
+EOF
+osascript -e 'tell application "TeamViewer" to activate' >>/dev/null 2>&1
+sleep 1
+/Applications/TeamViewer.app/Contents/MacOS/TeamViewer >>/dev/null 2>&1
+sleep 1
+osascript <<EOT
+display dialog "The Host must allow TeamViewer to control their computer." & "
+" & "
+Once TeamViewer is an allowed app..." & "\n" & "\nThe HOST must give the Listener the HOST’s TeamViewer ID and TeamViewer password over the phone." & "\n" & "\nThe Listener will enter this information in the Control Remote Computer section." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Next"}
+delay 15
+display dialog "Once the Listener and Host are connected, you should now be able to hear and see the Host computer." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"YAYUHH!"}
+delay 3
+log " "
+tell application "Terminal" to activate
+delay 1
+display dialog "You did it!" & "
+" & "
+You are all setup and ready to collaborate!" & "
+" & "
+" & "
+DO NOT CLOSE THE TERMINAL WINDOW." & "
+" & "
+You may minimize this Terminal window." & "
+BUT DO NOT CLOSE IT." & "
+" & "
+KEEP THE TERMINAL WINDOW OPEN." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"WOOHOO"}
+log " "
+log " "
+log "You may minimize this Terminal window. BUT DO NOT CLOSE IT."
+log " "
+log " "
+delay 2
+log "When you are done hosting this session and want to exit..."
+log " "
+log "TO PROPERLY disconnect and exit. Press SPACEBAR."
+log " "
+delay 5
+display dialog "Remember, when you are done hosting this session and want to exit, \nYOU MUST PROPERLY EXIT." & "\n" & "\nTO PROPERLY exit, make Terminal the focus window and press SPACEBAR." with icon file ("/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" as POSIX file) buttons {"For sure, my dude."}
+EOT
+read -n1 -r -p "This will also require your password to disconnect." key
+if [ "$key" = '' ]; then
+echo " "
+echo " "
+echo "Spacebar pressed. Once disconnected, this window will automatically close."
+echo " "
+echo "Disconnecting from your nowyouhear.me network. Please wait..."
+osascript <<EOT
+do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
+delay 1
+do shell script "sudo launchctl unload /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+delay 0.5
+display dialog "You are now disconnected from your NowYouHear.me network. Terminal, OBS, and Teamviewer will close automatically." & "\n" & "\nSometimes, when OBS or TeamViewer close out, it will come up with an error that it quit unexpectedly. This error can be ignored." & "\n" & "\nThanks for using NowYouHear.me!" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"WOOHOO"}
+tell application "OBS" to quit
+do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio'" with administrator privileges
+do shell script "if [ -f ~/'Library/Application Support/obs-studio-archive-$filedate/global.ini' ]; then sudo mv ~/'Library/Application Support/obs-studio-archive-$filedate' ~/'Library/Application Support/obs-studio'; fi" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+EOT
+fi
+osascript -e 'tell application "TeamViewer" to quit'
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+fi
+osascript -e 'tell application "Terminal" to quit' &
+exit
