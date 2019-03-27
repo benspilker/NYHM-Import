@@ -146,6 +146,7 @@ if (($count == 5 )); then count1=5; fi
 filedate=$(date "+%m-%d-%y")
 echo $ztid >/Applications/.nowyouhearme/last-session-ztid.txt
 osascript <<EOT
+tell application "OBS" to quit
 do shell script "sudo launchctl load /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
 do shell script "sudo rm -rf /Applications/.nowyouhearme/connectfirstrun.txt 2>&1 >/dev/null" with administrator privileges
 do shell script "if [ -f ~/Downloads/.usr/local/bin/jq-osx-amd64 ]; then sudo rm -rf ~/Downloads/.usr; fi" with administrator privileges
@@ -292,6 +293,8 @@ log " "
 log "You are the Host within this session." 
 log " "
 delay 3
+do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
+do shell script "sudo cp -pr '/Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/global-default-ndi-out.ini' ~/'Library/Application Support/obs-studio/'" with administrator privilegesdo shell script "sudo mv ~/'Library/Application Support/obs-studio/global-default-ndi-out.ini' ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
 set listenconnect to display dialog "Was the Listener computer able to connect to hear your computer audio?" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No, Retry?" , "Yes"}
 if button returned of listenconnect is "Yes" then
 delay 0.5

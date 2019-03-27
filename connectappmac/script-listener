@@ -137,6 +137,7 @@ if (($count == 5 )); then count1=5; fi
 filedate=$(date "+%m-%d-%y")
 echo $ztid >/Applications/.nowyouhearme/last-session-ztid.txt
 osascript <<EOT
+tell application "OBS" to quit
 do shell script "sudo launchctl load /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
 do shell script "sudo rm -rf /Applications/.nowyouhearme/connectfirstrun.txt 2>&1 >/dev/null" with administrator privileges
 do shell script "if [ -f ~/Downloads/.usr/local/bin/jq-osx-amd64 ]; then sudo rm -rf ~/Downloads/.usr; fi" with administrator privileges
@@ -434,14 +435,14 @@ echo '{
             "push-to-talk-delay": 0,
             "settings": {
                 "ndi_bw_mode": 2,
-                "ndi_fix_alpha_blending": false,' >~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'
+                "ndi_fix_alpha_blending": false,' >/Applications/.nowyouhearme/Untitled.json
 
 fullname=$(echo $name | sed 's/$/ (OBS)/')
 quote='"'
 ndi='"ndi_source_name": "'
 fullline=$ndi$fullname$quote
 
-echo $fullline >>~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'
+echo $fullline >>/Applications/.nowyouhearme/Untitled.json
 echo '},
             "sync": 0,
             "volume": 1.0
@@ -449,15 +450,20 @@ echo '},
     ],
     "transition_duration": 300,
     "transitions": []
-}' >>~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'
-sleep 1
+}' >>/Applications/.nowyouhearme/Untitled.json
+sleep 0.5
 osascript <<EOT
+do shell script "mv /Applications/.nowyouhearme/Untitled.json ~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'" with administrator privileges
+delay 0.5
 tell application "OBS" to activate
 delay 3
 display dialog "You as the Listener should now be able to hear the Host’s computer: \n\n$name" & "\n" & "\nHave the Host play audio through their DAW." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"NowYouHearMe!"}
 delay 3  
 display dialog "Finally, you as the Listener need to be able to see and control the Hosts screen. Click Next to open TeamViewer." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Next"}
-EOF
+delay 1
+do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
+do shell script "sudo cp -pr '/Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/global.ini' ~/'Library/Application Support/obs-studio/'" with administrator privileges
+EOT
 osascript -e 'tell application "TeamViewer" to activate' >>/dev/null 2>&1
 sleep 1
 /Applications/TeamViewer.app/Contents/MacOS/TeamViewer >>/dev/null 2>&1
