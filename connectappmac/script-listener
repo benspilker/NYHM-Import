@@ -151,6 +151,74 @@ do shell script "sudo mv ~/'Library/Application Support/obs-studio/global-mainou
 display dialog "You are now connected to the Host's NowYouHear.me network." & "\n" & "\nThe Host's NowYouHear.me account can have up to 5 devices." & "\n" & "\nHave the Host contact NowYouHear.me support if you need to remove unused devices." & "\n" & "\nThe Host's account has used $count1 out of 5 available devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"I Understand, Let's Continue"}
 delay 1
 tell application "Terminal" to activate
+EOT
+echo "Looking for NowYouHear.me peers on network..."
+echo " "
+pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+if [ -z "$pingtest" ]; then
+echo " "
+echo " "
+echo "Looking for NowYouHear.me peers...2nd Try."
+echo "This may take up to a minute to detect..."
+pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+fi
+if [ -z "$pingtest" ]; then
+echo " "
+echo "Looking for NowYouHear.me peers...3rd Try."
+echo " "
+pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+fi
+if [ -z "$pingtest" ]; then
+echo " "
+echo "Looking for NowYouHear.me peers......4th Try."
+echo " "
+pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+fi
+if [ -z "$pingtest" ]; then
+echo " "
+echo " "
+echo "Still attempting connection...5th Try."
+echo " "
+echo " "
+pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+fi
+if [ -z "$pingtest" ]; then
+echo " "
+echo "Final attempt to detect peers..."
+pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+fi
+if [ -z "$pingtest" ]; then
+osascript <<EOT
+set peerdetect to display dialog "No NowYouHear.me peers discovered on the network." & "\n" & "\nStart Over to Try Again." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit This Program" , "Start Over"}
+if button returned of peerdetect is "Exit This Program" then
+do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
+delay 1
+do shell script "sudo launchctl unload /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+delay 0.5
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+tell application "NowYouHearMeConnect" to quit
+tell application "Terminal" to quit
+end if 
+if button returned of peerdetect is "Start Over" then
+delay 0.5
+end if
+EOT
+if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
+oldztid=$(</Applications/.nowyouhearme/last-session-ztid.txt)
+osascript <<EOT
+do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&1" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+delay 1
+tell application "Terminal"
+	activate
+	do script "/Applications/NowYouHearMeConnect.app/Contents/Resources/script-listener"
+end tell
+delay 0.5
+EOT
+fi
+fi
+if [ ! -z "$pingtest" ]; then
+osascript <<EOT
 log " "
 log "******************************************************************************"
 log " " 
@@ -178,7 +246,7 @@ rm /Applications/.nowyouhearme/ndisearch.txt
 name2=yes
 if [ -z "$name" ]; then
 osascript <<EOT
-display dialog "No NowYouHear.me peers discovered." & "\n" & "\nConfirm that the Host is running OBS?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
+display dialog "No NowYouHear.me peers Broadcasting OBS were discovered." & "\n" & "\nConfirm that the Host is running OBS?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
 EOT
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch2.txt ) & sleep 1 ; kill $!
 ndisearch2=$(</Applications/.nowyouhearme/ndisearch2.txt)
@@ -188,7 +256,7 @@ name=$name2
 fi
 if [ -z "$name2" ]; then
 osascript <<EOT
-display dialog "Still no NowYouHear.me peers were discovered." & "\n" & "\nIt is possible that you or The HOST computer did not successfully connect to the NowYouHear.me network (Even though it says you are connected)." & "\n" & "\nTo re-attempt to connect with the HOST, you and the Host should start-over." & "\n" & "\nYour computer password will be required to properly exit and start over." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Start Over"}
+display dialog "Still no NowYouHear.me peers Broadcasting OBS were discovered." & "\n" & "\nIt is possible that you or The HOST computer did not successfully connect to the NowYouHear.me network (Even though it says you are connected)." & "\n" & "\nTo re-attempt to connect with the HOST, you and the Host should start-over." & "\n" & "\nYour computer password will be required to properly exit and start over." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Start Over"}
 EOT
 if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
 oldztid=$(</Applications/.nowyouhearme/last-session-ztid.txt)
@@ -202,6 +270,7 @@ tell application "Terminal"
 end tell
 delay 0.5
 EOT
+fi
 fi
 if [ ! -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
 fi
@@ -496,13 +565,14 @@ log " "
 log " "
 delay 2
 log "When you are done hosting this session and want to exit..."
-log " "
 log "TO PROPERLY disconnect and exit. Press SPACEBAR."
 log " "
 delay 5
 display dialog "Remember, when you are done hosting this session and want to exit, \nYOU MUST PROPERLY EXIT." & "\n" & "\nTO PROPERLY exit, make Terminal the focus window and press SPACEBAR." with icon file ("/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" as POSIX file) buttons {"For sure, my dude."}
 EOT
-read -n1 -r -p "This will also require your password to disconnect." key
+echo "TO PROPERLY disconnect and exit. Press SPACEBAR."
+echo " "
+read -n1 -r -p "" key
 if [ "$key" = '' ]; then
 echo " "
 echo " "
