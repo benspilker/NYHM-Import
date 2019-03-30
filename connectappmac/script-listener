@@ -152,45 +152,50 @@ display dialog "You are now connected to the Host's NowYouHear.me network." & "\
 delay 1
 tell application "Terminal" to activate
 EOT
-echo "Looking for NowYouHear.me peers on network..."
+sleep 2
+echo "Looking for NowYouHear.me network address..."
+sleep 1
 echo " "
-pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
-if [ -z "$pingtest" ]; then
-echo " "
-echo " "
-echo "Looking for NowYouHear.me peers...2nd Try."
+sleep 2
 echo "This may take up to a minute to detect..."
-pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+sleep 2
+echo " "
+sleep 3
+onnetwork=$(ifconfig | grep -oh "172.22.172.255" )
+if [ -z "$onnetwork" ]; then
+sleep 2
+echo " "
+sleep 3
+echo " "
+echo "Looking for NowYouHear.me network address...2nd Try."
+sleep 2
+echo "Please be patient, this may take up to a minute to detect..."
+sleep 3
+onnetwork=$(ifconfig | grep -oh "172.22.172.255" )
 fi
-if [ -z "$pingtest" ]; then
+if [ -z "$onnetwork" ]; then
 echo " "
-echo "Looking for NowYouHear.me peers...3rd Try."
+sleep 3
+echo "Looking for NowYouHear.me network address...3rd Try."
+sleep 2
 echo " "
-pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+sleep 5
+onnetwork=$(ifconfig | grep -oh "172.22.172.255" )
 fi
-if [ -z "$pingtest" ]; then
+if [ -z "$onnetwork" ]; then
+sleep 3
 echo " "
-echo "Looking for NowYouHear.me peers......4th Try."
+sleep 1
+echo "Looking for NowYouHear.me network address...Final Attempt"
+sleep 4
 echo " "
-pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
+sleep 2
+onnetwork=$(ifconfig | grep -oh "172.22.172.255" )
 fi
-if [ -z "$pingtest" ]; then
-echo " "
-echo " "
-echo "Still attempting connection...5th Try."
-echo " "
-echo " "
-pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
-fi
-if [ -z "$pingtest" ]; then
-echo " "
-echo "Final attempt to detect peers..."
-pingtest=$(ping -c 1 172.22.172.255 | cut -b 55-56 | grep -o '^\S*' | sed '1d' | sed '2d' | sed '3d' | sed '3d' | sed '2d' | sed '2d')
-fi
-if [ -z "$pingtest" ]; then
+if [ -z "$onnetwork" ]; then
 osascript <<EOT
-set peerdetect to display dialog "No NowYouHear.me peers discovered on the network." & "\n" & "\nStart Over to Try Again." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit This Program" , "Start Over"}
-if button returned of peerdetect is "Exit This Program" then
+set detect to display dialog "No NowYouHear.me network address was found." & "\n" & "\nStart Over to Try Again." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit This Program" , "Start Over"}
+if button returned of detect is "Exit This Program" then
 do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
 delay 1
 do shell script "sudo launchctl unload /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
@@ -199,7 +204,7 @@ do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" 
 tell application "NowYouHearMeConnect" to quit
 tell application "Terminal" to quit
 end if 
-if button returned of peerdetect is "Start Over" then
+if button returned of detect is "Start Over" then
 delay 0.5
 end if
 EOT
@@ -217,7 +222,7 @@ delay 0.5
 EOT
 fi
 fi
-if [ ! -z "$pingtest" ]; then
+if [ ! -z "$onnetwork" ]; then
 osascript <<EOT
 log " "
 log "******************************************************************************"
@@ -241,7 +246,7 @@ delay 1
 EOT
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch.txt ) & sleep 1 ; kill $!
 ndisearch=$(</Applications/.nowyouhearme/ndisearch.txt)
-name=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch.txt
 name2=yes
 if [ -z "$name" ]; then
@@ -250,7 +255,7 @@ display dialog "No NowYouHear.me peers Broadcasting OBS were discovered." & "\n"
 EOT
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch2.txt ) & sleep 1 ; kill $!
 ndisearch2=$(</Applications/.nowyouhearme/ndisearch2.txt)
-name2=$(echo $ndisearch2 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name2=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch2.txt
 name=$name2
 fi
