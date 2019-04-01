@@ -246,7 +246,7 @@ delay 1
 EOT
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch.txt ) & sleep 1 ; kill $!
 ndisearch=$(</Applications/.nowyouhearme/ndisearch.txt)
-name=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name=$(echo $ndisearch | cut -b 168-220 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch.txt
 name2=yes
 if [ -z "$name" ]; then
