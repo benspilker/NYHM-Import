@@ -5,9 +5,16 @@ echo "         Welcome to NowYouHear.me     "
 echo " " 
 echo "******************************************" 
 echo " "
-echo "YOU NEED TO BE CONNECTED TO THE INTERNET FOR THIS TO WORK."
-echo " "
+osver=$(defaults read loginwindow SystemVersionStampAsString | sed 's/10.//g' )
+intosver=$(printf %.0f $(echo "$osver" | bc -l))
+if [[ $intosver -lt 11 ]]; then 
+osascript -e 'display dialog "You need Mac OS 10.11 El Capitan or Higher for this application to work, please upgrade your Mac OS." buttons {"Exit"}'
 sleep 1
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+if ! ping -q -c 2 -W 1 8.8.8.8 >/dev/null; then osascript -e 'display dialog "You are not connected to the Internet, or at least NowYouHearMe Connect could not ping Google. \n\nCheck your connection or reboot your computer." buttons {"OK"}' & osascript -e 'tell application "NowYouHearMeConnect" to quit' & osascript -e 'tell application "Terminal" to quit' & exit; fi
 if [ ! -f /Applications/.nowyouhearme/jq-osx-amd64 ]; then cp -pr ~/Downloads/.usr/local/bin/jq-osx-amd64 /Applications/.nowyouhearme/jq-osx-amd64; fi
 chmod +x /Applications/.nowyouhearme/jq-osx-amd64
 if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
@@ -26,14 +33,12 @@ osascript <<EOT
 display dialog "Call your friend on the phone and confirm that they are available to Host a session." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Yes, We’re Ready"}
 EOT
 echo " "
-echo " "
 echo "Enter the nowyouhear.me account email and pin in the dialog prompts."
-echo " "
 echo "This will also require your computer password."
 echo " "
 sleep 2
 email=$(/usr/bin/osascript <<EOT
-set email to the text returned of (display dialog "As a Listener you are considered a guest." & "\nYou do not need your own NowYouHear.me account." & "\n" & "\nHowever, the account holder could potentially swap roles and be a Listener." & "\n" & "\nYou must enter the email of the account holder." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set email to the text returned of (display dialog "As a Listener you are considered a guest." & "\n\nYou do not need your own NowYouHear.me account." & "\n" & "\nHowever, the account holder could potentially swap roles and be a Listener." & "\n" & "\nYou must enter the email of the account holder." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 if [ -z "$email" ]; then
 sleep 1
@@ -129,11 +134,9 @@ if [ $passcode == $passcodeconfig ]; then passcheck2="1"; fi
 if [ $passcheck1 == $passcheck2 ]; then
 echo " "
 echo "Connecting to the account holder’s NowYouHear.me network..."
-echo " "
 count=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | /Applications/.nowyouhearme/jq-osx-amd64 '.totalMemberCount')
 count1=$count
 if (($count == 0 )); then count1=1; fi
-if (($count == 5 )); then count1=5; fi
 filedate=$(date "+%m-%d-%y")
 echo $ztid >/Applications/.nowyouhearme/last-session-ztid.txt
 osascript <<EOT
@@ -148,13 +151,12 @@ do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/basic/sce
 do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
 do shell script "sudo cp -r /Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/global-mainoutput-false.ini  ~/'Library/Application Support/obs-studio/'" with administrator privileges
 do shell script "sudo mv ~/'Library/Application Support/obs-studio/global-mainoutput-false.ini' ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
-display dialog "You are now connected to the Host's NowYouHear.me network." & "\n" & "\nThe Host's NowYouHear.me account can have up to 5 devices." & "\n" & "\nHave the Host contact NowYouHear.me support if you need to remove unused devices." & "\n" & "\nThe Host's account has used $count1 out of 5 available devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"I Understand, Let's Continue"}
-delay 1
 tell application "Terminal" to activate
 EOT
 sleep 2
 echo "Looking for NowYouHear.me network address..."
 sleep 1
+echo " "
 echo " "
 sleep 2
 echo "This may take up to a minute to detect..."
@@ -169,7 +171,7 @@ sleep 3
 echo " "
 echo "Looking for NowYouHear.me network address...2nd Try."
 sleep 2
-echo "Please be patient, this may take up to a minute to detect..."
+echo "Please be patient..."
 sleep 3
 onnetwork=$(ifconfig | grep -oh "172.22.172.255" )
 fi
@@ -179,22 +181,34 @@ sleep 3
 echo "Looking for NowYouHear.me network address...3rd Try."
 sleep 2
 echo " "
-sleep 5
-onnetwork=$(ifconfig | grep -oh "172.22.172.255" )
-fi
-if [ -z "$onnetwork" ]; then
-sleep 3
-echo " "
-sleep 1
-echo "Looking for NowYouHear.me network address...Final Attempt"
-sleep 4
-echo " "
 sleep 2
 onnetwork=$(ifconfig | grep -oh "172.22.172.255" )
 fi
+if ([ $count1 -gt 5 ] && [ -z "$onnetwork" ]); then
+osascript <<EOT
+display dialog "Well there's good news and bad news..." & "
+" & "
+The good news is that you or the account holder has been using NowYouHear.me on several devices, which is really rad. So good job!" & "
+" & "
+The bad news is that you have exceeded the 5 device limit on this account. 
+
+To fix this, you must contact NowYouHear.me support to clear unused devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit and Go to Website"}
+do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
+delay 1
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+tell application "NowYouHearMeConnect" to quit
+do shell script "if [ -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me -a 'Google Chrome.app'; fi"
+do shell script "if [ ! -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me -a Safari.app; fi"
+do shell script "sudo launchctl unload /Applications/.nowyouhearme/zerotier/com.zerotier.one.plist" with administrator privileges
+delay 0.5
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+tell application "NowYouHearMeConnect" to quit
+EOT
+fi
+if [ ! -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then osascript -e 'tell application "Terminal" to quit' & exit; fi
 if [ -z "$onnetwork" ]; then
 osascript <<EOT
-set detect to display dialog "No NowYouHear.me network address was found." & "\n" & "\nStart Over to Try Again." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit This Program" , "Start Over"}
+set detect to display dialog "This computer could not find a NowYouHear.me network address." & "\n" & "\nTo fix this NowYouHearMe Connect will close and reopen." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit This Program" , "Reopen"}
 if button returned of detect is "Exit This Program" then
 do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
 delay 1
@@ -202,15 +216,18 @@ do shell script "sudo launchctl unload /Applications/.nowyouhearme/zerotier/com.
 delay 0.5
 do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
 tell application "NowYouHearMeConnect" to quit
-tell application "Terminal" to quit
-end if 
-if button returned of detect is "Start Over" then
+end if
+if button returned of detect is "Reopen" then
 delay 0.5
 end if
 EOT
+if [ ! -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then osascript -e 'tell application "Terminal" to quit' & exit; fi
 if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
 oldztid=$(</Applications/.nowyouhearme/last-session-ztid.txt)
 osascript <<EOT
+log " "
+log "Exiting NowYouHearMe Connect..."
+log " "
 do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&1" with administrator privileges
 do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
 delay 1
@@ -222,8 +239,14 @@ delay 0.5
 EOT
 fi
 fi
+if [ ! -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
+sleep 1
 if [ ! -z "$onnetwork" ]; then
 osascript <<EOT
+display dialog "You are now connected to the Host's NowYouHear.me network." & "\n" & "\nThe Host's NowYouHear.me account can have up to 5 devices." & "\n" & "\nHave the Host contact NowYouHear.me support if you need to remove unused devices." & "\n" & "\nThe Host's account has used $count1 out of 5 available devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"I Understand, Let's Continue"}
+delay 1
+log " "
+log "Network address found."
 log " "
 log "******************************************************************************"
 log " " 
@@ -241,31 +264,101 @@ log " "
 log " "
 log " "
 log " "
-display dialog "You must now wait until the Host is ready to Broadcast sound..." & "\n" & "\nYou will know the HOST is ready when they see a dialog box that says..." & "\n" & "\n(You are now Broadcasting sound, with a stop sign icon.)" with icon stop buttons {"Yes, we are both ready"}
+display dialog "You must now wait until the Host is ready to Broadcast sound..." & "\n" & "\nYou will know the HOST is ready when THEY see a dialog box that says..." & "\n" & "\n(You are now Broadcasting sound, with a stop sign icon.)" with icon stop buttons {"Yes, we are both ready"}
 delay 1
 EOT
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch.txt ) & sleep 1 ; kill $!
 ndisearch=$(</Applications/.nowyouhearme/ndisearch.txt)
-name=$(echo $ndisearch | cut -b 168-220 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch.txt
 name2=yes
+name3=yes
+fi
 if [ -z "$name" ]; then
 osascript <<EOT
 display dialog "No NowYouHear.me peers Broadcasting OBS were discovered." & "\n" & "\nConfirm that the Host is running OBS?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
 EOT
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch2.txt ) & sleep 1 ; kill $!
 ndisearch2=$(</Applications/.nowyouhearme/ndisearch2.txt)
-name2=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name2=$(echo $ndisearch2 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch2.txt
 name=$name2
 fi
-if [ -z "$name2" ]; then
+if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ] && [ -z "$name2" ]; then osascript -e 'display dialog "Well, crap!! It happened again…
+
+The Listener should autodetect the Host.
+Since this did not happen the 2nd time around…
+
+There are 2 potential problems.
+
+1. Confirm that you and the Host are using the same email to sign in?
+
+2. If you’ve confirmed 1, then the Host Computer may not actually be on their NowYouHear.me network (even though it says they are)
+
+The Host will need to sign out and sign back in." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Wait for Host"}'; fi
+if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ] && [ -z "$name2" ]; then osascript -e 'display dialog "Waiting for Host to reconnect...
+
+CLICK CONNECT AGAIN ONLY AFTER THE HOST HAS SIGNED BACK IN AND IS READY TO BROADCAST." with icon stop buttons {"Connect Again"}'; fi
+if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ] && [ -z "$name2" ]; then
+( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch3.txt ) & sleep 1 ; kill $!
+ndisearch3=$(</Applications/.nowyouhearme/ndisearch3.txt)
+name3=$(echo $ndisearch3 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+rm /Applications/.nowyouhearme/ndisearch3.txt
+name=$name3
+fi
+if [ -z "$name3" ] && [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ]; then
 osascript <<EOT
-display dialog "Still no NowYouHear.me peers Broadcasting OBS were discovered." & "\n" & "\nIt is possible that you or The HOST computer did not successfully connect to the NowYouHear.me network (Even though it says you are connected)." & "\n" & "\nTo re-attempt to connect with the HOST, you and the Host should start-over." & "\n" & "\nYour computer password will be required to properly exit and start over." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Start Over"}
+display dialog "No NowYouHear.me peers Broadcasting OBS were discovered." & "\n" & "\nConfirm that the Host is running OBS?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
 EOT
+( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch3.txt ) & sleep 1 ; kill $!
+ndisearch4=$(</Applications/.nowyouhearme/ndisearch4.txt)
+name4=$(echo $ndisearch4 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+rm /Applications/.nowyouhearme/ndisearch4.txt
+name=$name4
+fi
+if [ -z "$name4" ] && [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ]; then osascript -e 'display dialog "Hmmm, today is just not your day.
+
+Listener and Host Computers could not autodetect each other.
+
+Try you and the Host rebooting both your computers?" buttons {"Well, crap...Exit"}'; fi
+if [ -z "$name3" ] && [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ]; then
 if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
 oldztid=$(</Applications/.nowyouhearme/last-session-ztid.txt)
 osascript <<EOT
+log " "
+log "Exiting NowYouHearMe Connect..."
+log " "
+do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&1" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
+do shell script "sudo rm -rf /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt" with administrator privileges
+EOT
+fi
+sleep 1
+osascript -e 'tell application "NowYouHearMeConnect" to quit'
+osascript -e 'tell application "Terminal" to quit' &
+exit
+fi
+if [ -z "$name2" ] && [ ! -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ]; then
+osascript <<EOT
+display dialog "Well crap. This can happen sometimes...
+
+Still no NowYouHear.me peers Broadcasting OBS were discovered." & "
+" & "
+The Listener could not autodetect the Host. 
+
+If this is the 1st time (You) the Listener signed into an account, it can take longer that 1st time.
+
+It should work the 2nd time around.
+
+ARE YOU AND THE HOST USING THE SAME EMAIL TO SIGN IN? You have to use the same email account." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Sign Out and Sign Back In"}
+EOT
+if [ -z "$name2" ]; then echo "Listener could not autodetect." >/Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt; fi
+if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
+oldztid=$(</Applications/.nowyouhearme/last-session-ztid.txt)
+osascript <<EOT
+log " "
+log "Exiting NowYouHearMe Connect..."
+log " "
 do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&1" with administrator privileges
 do shell script "sudo rm -rf /Applications/.nowyouhearme/last-session-ztid.txt" with administrator privileges
 delay 1
@@ -276,10 +369,9 @@ end tell
 delay 0.5
 EOT
 fi
-fi
 if [ ! -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
 fi
-sleep 3
+sleep 2
 osascript <<EOT
 tell application "Terminal" to activate
 EOT
@@ -528,6 +620,7 @@ echo '},
 sleep 0.5
 osascript <<EOT
 do shell script "mv /Applications/.nowyouhearme/Untitled.json ~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'" with administrator privileges
+do shell script "sudo rm -rf /Applications/.nowyouhearme/failedlistener.txt" with administrator privileges
 delay 0.5
 tell application "OBS" to activate
 delay 3
