@@ -21,13 +21,13 @@ tell application "Terminal" to close second window
 tell application "NowYouHearMeConnect" to quit
 	end if
 if button returned of update is "Skip (not recommended)" then 
-set myQuery to display dialog "*****************************************" & "\n" & "\n  Welcome to NowYouHear.me Connect     " & "\n" & "\n*****************************************" & "\n" & "\nPlease pick an option below to begin." & "
+set myQuery to display dialog "*****************************************" & "\n" & "\n Welcome to NowYouHear.me Connect     " & "\n" & "\n*****************************************" & "\n" & "\nPlease pick an option below to begin." & "
 " & "
 Host - I am a Music Producer wanting to HOST a session. (Someone else will be listening to sound from my DAW)" & "
 " & "
 Listener - I am a Music Producer, but want to LISTEN to someone else's DAW (I will be listening to someone else's computer)" & "
 " & "
-2-Way - (Advanced Users Only) I am a Musician wanting to stream my instrument to a remote studio. (This requires you to also have local recording software such as Garageband, Logic, Ableton, etc)" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Host", "Listener", "2-Way"}
+2-Way - (Advanced Users) I am a Musician wanting to stream my instrument to a remote studio. (This requires you to also have local recording software such as Garageband, Logic, Ableton, etc)" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Host", "Listener", "2-Way"}
 	if button returned of myQuery is "Host" then
 set opt1 to display dialog "You picked Host Mode." & "\n" & "\nYou will be the Music Producer, HOSTING a session." & "\n" & "\nYou will be guided through how to setup your computer for this session in the next few steps." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit" , "Continue"}
 if button returned of opt1 is "Exit" then
@@ -63,13 +63,13 @@ EOT
 fi
 if [ -f "/Applications/.nowyouhearme/connectfirstrun.txt" ]; then
 osascript <<EOT
-set myQuery to display dialog "*********************************************************" & "\n" & "\n     Welcome to NowYouHear.me Connect     " & "\n" & "\n*********************************************************" & "\n" & "\nPlease pick an option below to begin." & "
+set myQuery to display dialog "*********************************************************" & "\n" & "\n                Welcome to NowYouHear.me Connect     " & "\n" & "\n*********************************************************" & "\n" & "\nPlease pick an option below to begin." & "
 " & "
 Host - I am a Music Producer wanting to HOST a session. (Someone else will be listening to sound from my DAW)" & "
 " & "
 Listener - I am a Music Producer, but want to LISTEN to someone else's DAW (I will be listening to someone else's computer)" & "
 " & "
-2-Way - (Advanced Users Only) I am a Musician wanting to stream my instrument to a remote studio. (This requires you to also have local recording software such as Garageband, Logic, Ableton, etc)" buttons {"Host", "Listener", "2-Way"}
+2-Way - (Advanced Users) I am a Musician wanting to stream my instrument to a remote studio. (This requires you to also have local recording software such as Garageband, Logic, Ableton, etc)" buttons {"Host", "Listener", "2-Way"}
 	if button returned of myQuery is "Host" then
 set opt1 to display dialog "You picked Host Mode" & "\n" & "\nYou will be the Music Producer, HOSTING a session." & "\n" & "\nYou will be guided through how to setup your computer for this session in the next few steps." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit" , "Continue"}
 if button returned of opt1 is "Exit" then
