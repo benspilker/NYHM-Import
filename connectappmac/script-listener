@@ -276,7 +276,9 @@ name3=yes
 fi
 if [ -z "$name" ]; then
 osascript <<EOT
-display dialog "No NowYouHear.me peers Broadcasting OBS were discovered." & "\n" & "\nConfirm that the Host is running OBS?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
+display dialog "No NowYouHear.me peers Broadcasting OBS were discovered." & "
+" & "
+Ask Host over the phone if THEY are running OBS with something that says You Are the Host?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
 EOT
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch2.txt ) & sleep 1 ; kill $!
 ndisearch2=$(</Applications/.nowyouhearme/ndisearch2.txt)
@@ -286,14 +288,15 @@ name=$name2
 fi
 if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ] && [ -z "$name2" ]; then osascript -e 'display dialog "Well, crap!! It happened again…
 
-The Listener should autodetect the Host.
-Since this did not happen the 2nd time around…
+Listener could not autodetect the Host,
+even the 2nd time around…
 
-There are 2 potential problems.
+1. Confirm that you and the Host are using the same email to sign in.
 
-1. Confirm that you and the Host are using the same email to sign in?
+2. Confirm the HOST has OBS open and it says (THEY) You Are the Host?
 
-2. If you’ve confirmed 1, then the Host Computer may not actually be on their NowYouHear.me network (even though it says they are)
+3. If you’ve confirmed 1 and 2, then the Host may not actually be on the NowYouHear.me network 
+(even though it says they are)
 
 The Host will need to sign out and sign back in." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Wait for Host"}'; fi
 if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ] && [ -z "$name2" ]; then osascript -e 'display dialog "Waiting for Host to reconnect...
@@ -342,15 +345,16 @@ if [ -z "$name2" ] && [ ! -f /Applications/NowYouHearMeConnect.app/Contents/Reso
 osascript <<EOT
 display dialog "Well crap. This can happen sometimes...
 
-Still no NowYouHear.me peers Broadcasting OBS were discovered." & "
+Still no NowYouHear.me peers Broadcasting were discovered." & "
 " & "
-The Listener could not autodetect the Host. 
+There are 3 potenial problems.
 
-If this is the 1st time (You) the Listener signed into an account, it can take longer that 1st time.
+1. Confirm the Host has OBS open and it says 
+(THEY) You Are the Host?
 
-It should work the 2nd time around.
+2. If it is the 1st time (You) the Listener signed into an account, it takes longer the 1st time.
 
-ARE YOU AND THE HOST USING THE SAME EMAIL TO SIGN IN? You have to use the same email account." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Sign Out and Sign Back In"}
+3. YOU AND THE HOST MUST USE THE SAME EMAIL TO SIGN IN FOR THIS TO WORK." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Sign Out and Sign Back In"}
 EOT
 if [ -z "$name2" ]; then echo "Listener could not autodetect." >/Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt; fi
 if [ -f /Applications/.nowyouhearme/last-session-ztid.txt ]; then
@@ -383,10 +387,6 @@ echo " "
 echo " "
 echo " "
 echo " "
-echo " "
-echo " "
-echo " "
-echo " "
 echo "******************************************************************************"
 echo " " 
 echo "You are connected to $email's NowYouHear.me network!"
@@ -396,24 +396,20 @@ echo " "
 echo "******************************************************************************"
 echo " "
 echo " "
-echo " "
-echo " "
-echo " "
-echo " "
-echo "Your OBS preferences are setup to receive audio from computer:"
+echo "NowYouHearMe Connect detected Host computer name:"
 echo " "
 echo "$name"
 echo " "
 echo " "
+sleep 1
+echo "Your computer password is required to set OBS to receive audio."
+echo " "
+sleep 1
+echo "After entering your password, OBS will open and receive audio."
 echo " "
 echo " " 
-echo "NowYouHearMe Connect."
-echo " "
-echo " "
 echo " " 
-echo "You are the Listener within this session." 
-echo " "
-echo " "
+echo "You are the Listener in this session."
 echo " "
 echo '{
     "current_program_scene": "Scene",
