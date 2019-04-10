@@ -32,7 +32,7 @@ delay 0.5
 end if
 EOT
 fi
-if [ ! -f '/Library/Application Support/nowyouhearme/connectfirstrun.txt' ]; then
+if [ ! -f '/Library/Application Support/nowyouhearme/connectfirstrun.txt' ] || [ ! -f '/Applications/.nowyouhearme/connectfirstrun.txt' ]; then
 osascript <<EOT
 set update to display dialog "********************************************" & "\n" & "\n    Welcome to NowYouHear.me Connect     " & "\n" & "\n*********************************************" & "\n\n" & "This program is still in Beta and will need to frequently check for updates to properly work." & "\n" & "\nClick Next to download the latest version." & "\n" & "\nUpdating should take less than 30 seconds.\n\nIF ASKED ON THE NEXT POPUP, YOU MUST CLICK OK TO ALLOW NOWYOUHEARME TO CONTROL TERMINAL." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Skip (not recommended)" , "Next"}
 if button returned of update is "Next" then 
