@@ -23,7 +23,7 @@ EOT
 osascript <<EOT
 set startnew to display dialog "Your previous NowYouHear.me session has been cleared." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit" , "Start New Session"}
 if button returned of startnew is "Exit" then 
-display dialog "Click OK to Exit.\n\nAlso the Host may want to change their DAW's audio output back to internal speakers or audio interface (set it back to normal)." buttons {"OK"}
+display dialog "Click OK to Exit.\n\nAlso the Host may want to change their DAW's audio output to internal speakers or an audio interface (set it back to normal)." buttons {"OK"}
 tell application "Terminal" to quit
 tell application "NowYouHearMeConnect" to quit
 end if
@@ -31,8 +31,10 @@ if button returned of startnew is "Start New Session" then
 delay 0.5
 end if
 EOT
+osascript -e 'tell application "Terminal" to quit' &
+exit
 fi
-if [ ! -f '/Library/Application Support/nowyouhearme/connectfirstrun.txt' ] || [ ! -f '/Applications/.nowyouhearme/connectfirstrun.txt' ]; then
+if [ ! -f '/Library/Application Support/nowyouhearme/connectfirstrun.txt' ]; then
 osascript <<EOT
 set update to display dialog "********************************************" & "\n" & "\n    Welcome to NowYouHear.me Connect     " & "\n" & "\n*********************************************" & "\n\n" & "This program is still in Beta and will need to frequently check for updates to properly work." & "\n" & "\nClick Next to download the latest version." & "\n" & "\nUpdating should take less than 30 seconds.\n\nIF ASKED ON THE NEXT POPUP, YOU MUST CLICK OK TO ALLOW NOWYOUHEARME TO CONTROL TERMINAL." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Skip (not recommended)" , "Next"}
 if button returned of update is "Next" then 
@@ -78,7 +80,7 @@ tell application "Terminal" to close second window
 	end if
 	end if
 	if button returned of myQuery is "2-Way" then
-		display dialog "This feature is coming soon!" & "\n" & "\nIn this scenario, the musician and the remote studio would both be acting as Hosts." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+		display dialog "This feature is coming soon!" & "\n" & "\nIn this scenario, the musician and the remote studio would both be acting as Hosts." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit"}
 tell application "NowYouHearMeConnect" to quit 
 	end if
 end if

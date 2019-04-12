@@ -48,7 +48,7 @@ echo "This will require your computer password."
 echo " "
 sleep 2
 email=$(/usr/bin/osascript <<EOT
-set emailresp to display dialog "What is your NowYouHear.me account email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK" , "No Account? Create One Here"}
+set emailresp to display dialog "What is your NowYouHear.me account email?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK" , "No Account? Create One Here"}
 if button returned of emailresp is "No Account? Create One Here" then 
 	do shell script "if [ -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/membership-account/membership-levels/ -a 'Google Chrome.app'; fi"
 	do shell script "if [ ! -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/membership-account/membership-levels/ -a Safari.app; fi"
@@ -75,7 +75,7 @@ echo " "
 ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id | sed -e 's/^"//' -e 's/"$//')
 if [ -z "$ztid" ]; then
 email=$(/usr/bin/osascript <<EOT
-set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account email?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 if [ -z "$email" ]; then
 sleep 1
@@ -92,7 +92,7 @@ ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id
 fi
 if [ -z "$ztid" ]; then
 email=$(/usr/bin/osascript <<EOT
-set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account email?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 if [ -z "$email" ]; then
 sleep 1
@@ -288,9 +288,10 @@ if button returned of sfroute is "Next" then
 end if
 set obsopen to display dialog "Click to automatically open OBS." & "
 " & "
-OBS MUST STAY OPEN FOR SOUND TO PLAY." with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Next", "Wait, I'm Still Routing Soundflower"}
-if button returned of obsopen is "Wait, I'm Still Routing Soundflower" then
-display dialog "Next, you’ll need to route audio from your DAW to a virtual audio channel called Soundflower (2ch)." & "
+OBS MUST STAY OPEN FOR SOUND TO PLAY." with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Wait up, I'm Still Routing Soundflower" , "Next"}
+if button returned of obsopen is "Wait up, I'm Still Routing Soundflower" then
+delay 4
+display dialog "Remember, you’ll need to route audio from your DAW to a virtual audio channel called Soundflower (2ch)." & "
 " & "
 Open your DAWs preferences, click the Audio tab, and set your DAWs audio OUTPUT to Soundflower (2ch)." & "
 " & "
@@ -436,7 +437,7 @@ log "Exiting NowYouHearMe Connect..."
 log " "
 delay 2
 do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
-do shell script "echo 'Host is signing out and back in.' >/Applications/NowYouHearMeConnect.app/Contents/Resources/failedhost.txt"
+do shell script "echo 'Host is signing out and back in.' >/Applications/NowYouHearMeConnect.app/Contents/Resources/failedhost.txt" with administrator privileges
 delay 1
 do shell script "sudo launchctl unload '/Library/Application Support/nowyouhearme/zerotier/com.zerotier.one.plist'" with administrator privileges
 delay 1
@@ -459,13 +460,17 @@ if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedhost.txt 
 osascript <<EOT
 set listenconnect to display dialog "Was the Listener computer able to connect to hear your computer audio?" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No, Retry?" , "Yes"}
 if button returned of listenconnect is "Yes" then
-do shell script "rm -rf /Applications/NowYouHearMeConnect.app/Contents/Resources/failedhost.txt"
+log " "
+log "NowYouHearMe Connect needs to clear out the failed host log file, now that you successfully connected."
+do shell script "rm -rf /Applications/NowYouHearMeConnect.app/Contents/Resources/failedhost.txt" with administator privileges
 end if
 if button returned of listenconnect is "No, Retry?" then 
 delay 2
 set listenconnect2 to display dialog "Was the Listener computer able to connect to hear your computer audio?" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No" , "Yes"}
 if button returned of listenconnect2 is "Yes" then
-do shell script "rm -rf /Applications/NowYouHearMeConnect.app/Contents/Resources/failedhost.txt"
+log " "
+log "NowYouHearMe Connect needs to clear out the failed host log file, now that you successfully connected."
+do shell script "rm -rf /Applications/NowYouHearMeConnect.app/Contents/Resources/failedhost.txt" with administator privileges
 end if
 if button returned of listenconnect2 is "No" then
 tell application "OBS" to quit
@@ -535,7 +540,8 @@ delay 2
 log "When you are done hosting this session and want to exit..."
 log "TO PROPERLY disconnect and exit. Press SPACEBAR."
 log " "
-delay 5
+delay 4
+tell application "Terminal" to activate
 display dialog "Remember, when you are done hosting this session and want to exit, \nYOU MUST PROPERLY EXIT." & "\n" & "\nTO PROPERLY exit, make Terminal the focus window and press SPACEBAR." with icon file ("/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" as POSIX file) buttons {"For sure, my dude."}
 EOT
 osascript -e 'tell application "NowYouHearMeConnect" to quit'

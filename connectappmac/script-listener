@@ -50,7 +50,7 @@ echo "This will also require your computer password."
 echo " "
 sleep 2
 email=$(/usr/bin/osascript <<EOT
-set email to the text returned of (display dialog "As a Listener you are considered a guest." & "\n\nYou do not need your own NowYouHear.me account." & "\n" & "\nHowever, the account holder could potentially swap roles and be a Listener." & "\n" & "\nYou must enter the email of the account holder." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set email to the text returned of (display dialog "As a Listener you are considered a guest.\nYou don't need your own account." & "\n" & "\nHowever, the account holder (Host) could potentially swap roles to be a Listener." & "\n" & "\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT.\n\nEnter an email:" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 if [ -z "$email" ]; then
 sleep 1
@@ -69,7 +69,7 @@ echo " "
 ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id | sed -e 's/^"//' -e 's/"$//')
 if [ -z "$ztid" ]; then
 email=$(/usr/bin/osascript <<EOT
-set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is the NowYouHear.me account holder’s email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is the NowYouHear.me account holder’s email?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 if [ -z "$email" ]; then
 sleep 1
@@ -86,7 +86,7 @@ ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id
 fi
 if [ -z "$ztid" ]; then
 email=$(/usr/bin/osascript <<EOT
-set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is the NowYouHear.me account holder’s email?" default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is the NowYouHear.me account holder’s email?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 if [ -z "$email" ]; then
 sleep 1
@@ -111,7 +111,7 @@ osascript -e 'tell application "Terminal" to quit' &
 exit
 fi
 passcode=$(/usr/bin/osascript <<EOT
-set passcode to the text returned of (display dialog "What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set passcode to the text returned of (display dialog "What is the account holder's NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 passcodeconfig=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.description' | sed -e 's/^"//' -e 's/"$//')
 if [[ $passcode == " " ]]; then
@@ -121,17 +121,12 @@ EOT)
 fi
 if [ $passcode != $passcodeconfig ]; then 
 passcode=$(/usr/bin/osascript <<EOT
-set passcode to the text returned of (display dialog "Passcode not found. Try again. What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is the account holder's NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 fi
 if [[ $passcode == " " ]]; then
 passcode=$(/usr/bin/osascript <<EOT
-set passcode to the text returned of (display dialog "Passcode not found. Try again. What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
-EOT)
-fi
-if [ $passcode != $passcodeconfig ]; then 
-passcode=$(/usr/bin/osascript <<EOT
-set passcode to the text returned of (display dialog "Passcode not found. Try again. What is their NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+set passcode to the text returned of (display dialog "Passcode not found. Try again. What is the account holder's NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
 fi
 if [ $passcode != $passcodeconfig ]; then 
@@ -279,10 +274,12 @@ log " "
 display dialog "You must now wait until the Host is ready to Broadcast sound..." & "\n" & "\nYou will know the HOST is ready when THEY see a dialog box that says..." & "\n" & "\n(You are now Broadcasting sound, with a stop sign icon.)" with icon stop buttons {"Yes, we are both ready"}
 delay 1
 EOT
-( dns-sd -B _ndi._tcp >/Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch.txt ) & sleep 1 ; kill $!
-ndisearch=$(</Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch.txt)
+mkdir -p /Applications/.nowyouhearme/
+( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch.txt ) & sleep 1 ; kill $!
+ndisearch=$(</Applications/.nowyouhearme/ndisearch.txt)
 name=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
-rm /Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch.txt
+rm /Applications/.nowyouhearme/ndisearch.txt
+rm -rf /Applications/.nowyouhearme/
 name2=yes
 name3=yes
 fi
@@ -292,10 +289,12 @@ display dialog "No NowYouHear.me peers Broadcasting OBS were discovered." & "
 " & "
 Ask Host over the phone if THEY are running OBS with something that says You Are the Host?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
 EOT
-( dns-sd -B _ndi._tcp >/Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch2.txt ) & sleep 1 ; kill $!
-ndisearch2=$(</Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch2.txt )
+mkdir -p /Applications/.nowyouhearme/
+( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch2.txt ) & sleep 1 ; kill $!
+ndisearch2=$(</Applications/.nowyouhearme/ndisearch2.txt )
 name2=$(echo $ndisearch2 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
-rm /Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch2.txt
+rm /Applications/.nowyouhearme/ndisearch2.txt
+rm -rf /Applications/.nowyouhearme/
 name=$name2
 fi
 if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ] && [ -z "$name2" ]; then osascript -e 'display dialog "Well, crap!! It happened again…
@@ -315,20 +314,24 @@ if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.
 
 CLICK CONNECT AGAIN ONLY AFTER THE HOST HAS SIGNED BACK IN AND IS READY TO BROADCAST." with icon stop buttons {"Connect Again"}'; fi
 if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ] && [ -z "$name2" ]; then
-( dns-sd -B _ndi._tcp >/Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch3.txt ) & sleep 1 ; kill $!
-ndisearch3=$(</Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch3.txt)
+mkdir -p /Applications/.nowyouhearme/
+( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch3.txt ) & sleep 1 ; kill $!
+ndisearch3=$(</Applications/.nowyouhearme/ndisearch3.txt)
 name3=$(echo $ndisearch3 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
-rm /Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch3.txt
+rm /Applications/.nowyouhearme/ndisearch3.txt
+rm -rf /Applications/.nowyouhearme/
 name=$name3
 fi
 if [ -z "$name3" ] && [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ]; then
 osascript <<EOT
 display dialog "No NowYouHear.me peers Broadcasting OBS were discovered." & "\n" & "\nConfirm that the Host is running OBS?" with icon file ("/Applications/OBS.app/Contents/Resources/OBS.icns" as POSIX file) buttons {"Retry, Discovery?"}
 EOT
-( dns-sd -B _ndi._tcp >/Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch3.txt ) & sleep 1 ; kill $!
-ndisearch4=$(</Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch4.txt)
+mkdir -p /Applications/.nowyouhearme/
+( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch4.txt ) & sleep 1 ; kill $!
+ndisearch4=$(</Applications/.nowyouhearme/ndisearch4.txt)
 name4=$(echo $ndisearch4 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
-rm /Applications/NowYouHearMeConnect.app/Contents/Resources/ndisearch4.txt
+rm /Applications/.nowyouhearme/ndisearch4.txt
+rm -rf /Applications/.nowyouhearme/
 name=$name4
 fi
 if [ -z "$name4" ] && [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt ]; then osascript -e 'display dialog "Hmmm, today is just not your day.
@@ -368,13 +371,14 @@ There are 3 potenial problems.
 
 3. YOU AND THE HOST MUST USE THE SAME EMAIL TO SIGN IN FOR THIS TO WORK." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Sign Out and Sign Back In"}
 EOT
-if [ -z "$name2" ]; then echo "Listener could not autodetect." >/Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt; fi
+if [ -z "$name2" ]; then
 if [ -f '/Library/Application Support/nowyouhearme/last-session-ztid.txt' ]; then
 oldztid=$(<'/Library/Application Support/nowyouhearme/last-session-ztid.txt')
 osascript <<EOT
 log " "
 log "Exiting NowYouHearMe Connect..."
 log " "
+do shell script "echo 'Listener could not autodetect.' >/Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt" with administrator privileges
 do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&1" with administrator privileges
 do shell script "sudo rm -rf '/Library/Application Support/nowyouhearme/last-session-ztid.txt'" with administrator privileges
 delay 1
@@ -385,12 +389,14 @@ end tell
 delay 0.5
 EOT
 fi
+fi
 if [ ! -f '/Library/Application Support/nowyouhearme/last-session-ztid.txt' ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
 fi
 sleep 2
 osascript <<EOT
 tell application "Terminal" to activate
 EOT
+mkdir -p /Applications/.nowyouhearme/
 echo " "
 echo " "
 echo " "
@@ -609,14 +615,14 @@ echo '{
             "push-to-talk-delay": 0,
             "settings": {
                 "ndi_bw_mode": 2,
-                "ndi_fix_alpha_blending": false,' >/Applications/NowYouHearMeConnect.app/Contents/Resources/Untitled.json
+                "ndi_fix_alpha_blending": false,' >/Applications/.nowyouhearme/Untitled.json
 
 fullname=$(echo $name | sed 's/$/ (OBS)/')
 quote='"'
 ndi='"ndi_source_name": "'
 fullline=$ndi$fullname$quote
 
-echo $fullline >>/Applications/NowYouHearMeConnect.app/Contents/Resources/Untitled.json
+echo $fullline >>/Applications/.nowyouhearme/Untitled.json
 echo '},
             "sync": 0,
             "volume": 1.0
@@ -624,10 +630,11 @@ echo '},
     ],
     "transition_duration": 300,
     "transitions": []
-}' >>/Applications/NowYouHearMeConnect.app/Contents/Resources/Untitled.json
+}' >>/Applications/.nowyouhearme/Untitled.json
 sleep 0.5
 osascript <<EOT
-do shell script "mv /Applications/NowYouHearMeConnect.app/Contents/Resources/Untitled.json ~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'" with administrator privileges
+do shell script "mv /Applications/.nowyouhearme/Untitled.json ~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'" with administrator privileges
+do shell script "rm -rf /Applications/.nowyouhearme/" with administrator privileges
 do shell script "sudo rm -rf /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.txt" with administrator privileges
 delay 0.5
 tell application "OBS" to activate
@@ -673,7 +680,8 @@ delay 2
 log "When you are done hosting this session and want to exit..."
 log "TO PROPERLY disconnect and exit. Press SPACEBAR."
 log " "
-delay 5
+delay 4
+tell application "Terminal" to activate
 display dialog "Remember, when you are done hosting this session and want to exit, \nYOU MUST PROPERLY EXIT." & "\n" & "\nTO PROPERLY exit, make Terminal the focus window and press SPACEBAR." with icon file ("/Applications/Utilities/Terminal.app/Contents/Resources/Terminal.icns" as POSIX file) buttons {"For sure, my dude."}
 EOT
 osascript -e 'tell application "NowYouHearMeConnect" to quit'

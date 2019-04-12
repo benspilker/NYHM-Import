@@ -1,0 +1,34 @@
+#!/bin/bash
+mkdir -p /Applications/.nyhm-update
+cd /Applications/.nyhm-update
+echo " "
+echo "Downloading NowYouHearMe Connect update..."
+echo " "
+curl -L https://www.dropbox.com/s/3i38vux9k5b0gza/NowYouHearMeConnect.app.zip?dl=1 --output NowYouHearMeConnect.app.zip
+echo " "
+osascript <<EOF
+display notification "NowYouHearMe Connect Downloaded."
+do shell script "sudo mkdir -p '/Library/Application Support/nowyouhearme/sudo'" with administrator privileges
+do shell script "sudo rm -rf '/Library/Application Support/nowyouhearme/sudo'" with administrator privileges
+tell application "NowYouHearMeConnect" to quit
+log " "
+display notification "Extracting NowYouHearMeConnect."
+do shell script "cd /Applications/.nyhm-update && unzip -o /Applications/.nyhm-update/NowYouHearMeConnect.app.zip >>/dev/null 2>&1"
+do shell script "rm /Applications/.nyhm-update/NowYouHearMeConnect.app.zip"
+do shell script "if [ -f '/Applications/.nyhm-update/NowYouHearMeConnect.app/Contents/Info.plist' ]; then sudo rm -rf /Applications/NowYouHearMeConnect.app; fi" with administrator privileges
+do shell script "sudo mv /Applications/.nyhm-update/NowYouHearMeConnect.app/Contents/Resources/connectfirstrun.txt '/Library/Application Support/nowyouhearme/'" with administrator privileges
+do shell script "sudo mv /Applications/.nyhm-update/NowYouHearMeConnect.app/Contents/Resources/script-update '/Library/Application Support/nowyouhearme/'" with administrator privileges
+do shell script "sudo chmod +x '/Library/Application Support/nowyouhearme/script-update'" with administrator privileges
+do shell script "sudo chmod 777 '/Library/Application Support/nowyouhearme/'" with administrator privileges
+EOF
+cp -pr /Applications/.nyhm-update/NowYouHearMeConnect.app /Applications/
+rm -rf /Applications/.nyhm-update/NowYouHearMeConnect.app
+chmod +x /Applications/NowYouHearMeConnect.app/Contents/MacOS/NowYouHearMeConnect
+chmod +x /Applications/NowYouHearMeConnect.app/Contents/Resources/script
+chmod +x /Applications/NowYouHearMeConnect.app/Contents/Resources/script-select
+chmod +x /Applications/NowYouHearMeConnect.app/Contents/Resources/script-host
+chmod +x /Applications/NowYouHearMeConnect.app/Contents/Resources/script-listener
+rm -rf /Applications/.nyhm-update
+if [ -f '/Library/Application Support/nowyouhearme/connectfirstrun.txt' ]; then osascript -e 'display dialog "NowYouHearMe Connect updated." & "\n" & "\nOpen it from the icon on your Dock or from the Applications folder" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}'; fi
+osascript -e 'tell application "Terminal" to close first window' &
+exit
