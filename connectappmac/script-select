@@ -19,20 +19,19 @@ do shell script "sudo /usr/local/bin/zerotier-cli leave $oldztid >>/dev/null 2>&
 do shell script "sudo rm -rf '/Library/Application Support/nowyouhearme/last-session-ztid.txt'" with administrator privileges
 tell application "TeamViewer" to quit
 tell application "OBS" to quit
+tell application "Terminal" to quit
 EOT
 osascript <<EOT
 set startnew to display dialog "Your previous NowYouHear.me session has been cleared." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit" , "Start New Session"}
 if button returned of startnew is "Exit" then 
 display dialog "Click OK to Exit.\n\nAlso the Host may want to change their DAW's audio output to internal speakers or an audio interface (set it back to normal)." buttons {"OK"}
-tell application "Terminal" to quit
 tell application "NowYouHearMeConnect" to quit
 end if
 if button returned of startnew is "Start New Session" then
 delay 0.5
 end if
 EOT
-osascript -e 'tell application "Terminal" to quit' &
-exit
+osascript -e 'tell application "Terminal" to quit'
 fi
 if [ ! -f '/Library/Application Support/nowyouhearme/connectfirstrun.txt' ]; then
 osascript <<EOT
