@@ -1,7 +1,9 @@
 <?php
 
 $email = 'johndoe@gmail.com';
-$passcode ='1234';
+
+$passcode="bob\r\n" .
+          "1234" .;
 
 $ch = curl_init();
 
