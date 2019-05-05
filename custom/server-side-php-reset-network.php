@@ -17,6 +17,7 @@ while ($row = $res->fetch_assoc()) {
     if ($row['flag_ResetNetwork'] == 1) {
         $email = $row['user_email'];
         $passcode = $row['value'];
+        $userlogin = $row['user_login'];
 
         $id = $row['ZTID'];
         $preurl = 'https://my.zerotier.com/api/network/';
@@ -89,7 +90,7 @@ while ($row = $res->fetch_assoc()) {
 
         curl_setopt($ch, CURLOPT_URL, $posturl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "{\"rulesSource\":\"drop not ethertype ipv4 and not ethertype arp; drop sport 1-4999; drop dport 1-4999; drop sport 5009-5352; drop dport 5009-5352; drop sport 5354-5960; drop dport 5354-5960; drop sport 5962-5999; drop dport 5962-5999; drop sport 6006-20807; drop dport 6006-20807; drop sport 20809-49151; drop dport 20809-49151; accept;\"}");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "{\"rulesSource\":\"drop not ethertype ipv4 and not ethertype arp; drop sport 1-4999; drop dport 1-4999; drop sport 5009-5352; drop dport 5009-5352; drop sport 5354-5960; drop dport 5354-5960; drop sport 5962-5999; drop dport 5962-5999; drop sport 6006-6959; drop dport 6006-6959; drop sport 6961-20807; drop dport 6961-20807; drop sport 20809-49151; drop dport 20809-49151; accept; #$userlogin:$passcode:$id\"}");
 
         curl_setopt($ch, CURLOPT_POST, 1);
 
