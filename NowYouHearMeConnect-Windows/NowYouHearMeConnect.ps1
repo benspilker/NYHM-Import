@@ -13,6 +13,7 @@ $woot.BackgroundImage = [system.drawing.image]::FromFile("C:\Program Files (x86)
 $woot.Width = 800
 $woot.Height = 185
 [void]$woot.Show()
+reg add "HKCU\Console" /f /v "QuickEdit" /t REG_DWORD /d "0" >$null 2>&1
 Set-Itemproperty -path 'HKCU:\Console\%SystemRoot%_SysWOW64_WindowsPowerShell_v1.0_powershell.exe\' -Name 'QuickEdit' -value '0'
 Set-Itemproperty -path 'HKCU:\Console\%SystemRoot%_System32_WindowsPowerShell_v1.0_powershell.exe\' -Name 'QuickEdit' -value '0'
 ##This code below disables the X close window button. This makes the user keep this window open in order to make the user properly exit out of the program by disconnecting from the network first. Ghetto I know, eventually I would like a prompt that asks, are you sure you want to exit? Then runs the disconnect commands when Yes is clicked, then closes out.
