@@ -279,7 +279,7 @@ echo " "
 echo " "
 echo "Step 6 of 8. Installing Apple Bonjour. Please wait..."
 echo " "
-Start-Process "$localpath\installbonjour.bat" -NoNewWindow -Verb runAs >$null 2>&1
+Start-Process "$localpath\installbonjour.bat" -NoNewWindow >$null 2>&1
 echo " "
 echo "Installed Apple Bonjour for peer-to-peer discovery."
 sleep 1
