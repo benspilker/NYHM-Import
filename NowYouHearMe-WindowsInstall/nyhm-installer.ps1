@@ -133,7 +133,7 @@ $FormWelcome.Controls.Add($label)
 $Button1 = new-object System.Windows.Forms.Button
 $Button1.Location = new-object System.Drawing.Size(230,105)
 $Button1.Size = new-object System.Drawing.Size(100,30)
-$Button1.Text = "Continue"
+$Button1.Text = "OK"
 $Button1.Add_MouseHover({$Button1.backcolor = [System.Drawing.Color]::Azure})
 $Button1.Add_MouseLeave({$Button1.backcolor = [System.Drawing.Color]::Gainsboro})
 $Button1.Add_Click({$FormWelcome.Dispose()})
@@ -188,31 +188,14 @@ echo "*                                               *"
 echo "*************************************************"
 echo " "
 echo " "
-echo "Step 2 of 8. Installing OBS...please wait..."
+echo "Step 2 of 8. Installing OBS (Open Broadcaster Software)...please wait..."
 echo "This may take up to 2 minutes to download and install."
 echo " "
 choco install obs-studio -y >$null 2>&1
 echo " "
 echo "Installed OBS (Open Broadcaster Software)"
+xcopy /y /E "C:\Program Files (x86)\nowyouhearme\OBSconfigs\original\obs-studio" "$ENV:UserProfile\AppData\Roaming\obs-studio\" >$null 2>&1
 }
-reg import $localpath\runonce.reg
-cls
-echo "*************************************************"
-echo "*                                               *"
-echo "* Welcome to the NowYouHear.me installation...  *"
-echo "*                                               *"
-echo "*************************************************"
-echo " "
-echo " "
-echo "Imported the registry entry to make instructions open on restart."
-cls
-echo "*************************************************"
-echo "*                                               *"
-echo "* Welcome to the NowYouHear.me installation...  *"
-echo "*                                               *"
-echo "*************************************************"
-echo " "
-echo " "
 if (!(Test-Path "C:\Program Files (x86)\ZeroTier\One\ZeroTier One.exe")){
 cls
 echo "*************************************************"
@@ -279,10 +262,22 @@ echo " "
 echo " "
 echo "Step 6 of 8. Installing Apple Bonjour. Please wait..."
 echo " "
-Start-Process "$localpath\installbonjour.bat" -NoNewWindow >$null 2>&1
+Start-Process "$localpath\installbonjour.bat" -NoNewWindow
+sleep 8
+if (!(Test-Path C:\Windows\system32\dns-sd.exe)){
+sleep 8
+Start-Process "$localpath\installbonjour.bat" -NoNewWindow
+sleep 8
+if (!(Test-Path C:\Windows\system32\dns-sd.exe)){
+sleep 8
+Start-Process "$localpath\installbonjour.bat" -NoNewWindow
+}
+}
+if (Test-Path C:\Windows\system32\dns-sd.exe){
 echo " "
 echo "Installed Apple Bonjour for peer-to-peer discovery."
-sleep 1
+sleep 2
+}
 }
 xcopy /y "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1" "C:\ProgramData\nowyouhearme\" >$null 2>&1
 Remove-Item -path "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1"
@@ -303,6 +298,9 @@ $hostsfile = (get-content $file)
 echo $hostsfile >"$env:windir\System32\drivers\etc\hosts-prenyhm"
 echo "Step 7 of 8. Downloading and extracting vb-audio cable..."
 echo " "
+if (!(Test-Path C:\Windows\system32\dns-sd.exe)){
+Start-Process "$localpath\installbonjour.bat" -NoNewWindow
+}
 Invoke-WebRequest -Uri https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip -OutFile "C:\Program Files (x86)\nowyouhearme\download\VBCABLE_Driver_Pack43.zip"
 expand-archive -path 'C:\Program Files (x86)\nowyouhearme\download\VBCABLE_Driver_Pack43.zip' -destinationpath 'C:\Program Files (x86)\nowyouhearme\download\vbcable'
 Remove-Item -path "C:\Program Files (x86)\nowyouhearme\download\VBCABLE_Driver_Pack43.zip"
@@ -349,6 +347,45 @@ $FormVB.Add_Shown({$FormVB.Activate()})
 $FormVB.ShowDialog()
 }
 if (!(Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll")){
+Invoke-WebRequest -Uri https://github.com/Palakis/obs-ndi/releases/download/4.6.0/obs-ndi-4.6.0-Windows-Installer.exe -OutFile "C:\Program Files (x86)\nowyouhearme\download\obs-ndi-4.6.0-Windows-Installer.exe"
+$FormOBSNDI = New-Object System.Windows.Forms.Form
+$FormOBSNDI.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon("$localpath\nowyouhearme\images\smallicon.ico")
+$FormOBSNDI.width = 600
+$FormOBSNDI.height = 200
+$FormOBSNDI.backcolor = [System.Drawing.Color]::Gainsboro
+$FormOBSNDI.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::Fixed3D
+$FormOBSNDI.Text = "VB-CABLE Reminder"
+$FormOBSNDI.Font = New-Object System.Drawing.Font("Verdana",9,[System.Drawing.FontStyle]::Bold)
+$FormOBSNDI.maximumsize = New-Object System.Drawing.Size(600,200)
+$FormOBSNDI.startposition = "centerscreen"
+$FormOBSNDI.KeyPreview = $True
+$FormOBSNDI.Add_KeyDown({if ($_.KeyCode -eq "Enter") {}})
+$FormOBSNDI.Add_KeyDown({if ($_.KeyCode -eq "Escape") 
+    {$FormOBSNDI.Close()}})
+$label = New-Object System.Windows.Forms.Label
+$label.Location = New-Object System.Drawing.Point(10,20)
+$label.Size = New-Object System.Drawing.Size(600,85)
+$label.Text = 'Step 8 of 8. Click OK to install the OBS-NDI plugin.
+
+OBS-NDI is from the developer, Palakis. It also installs the NDI runtime.
+
+https://github.com/Palakis/obs-ndi'
+$FormOBSNDI.Controls.Add($label)
+#Draw buttons 
+$Button1 = new-object System.Windows.Forms.Button
+$Button1.Location = new-object System.Drawing.Size(230,105)
+$Button1.Size = new-object System.Drawing.Size(100,30)
+$Button1.Text = "OK"
+$Button1.Add_MouseHover({$Button1.backcolor = [System.Drawing.Color]::Azure})
+$Button1.Add_MouseLeave({$Button1.backcolor = [System.Drawing.Color]::Gainsboro})
+$Button1.Add_Click({$FormOBSNDI.Dispose()})
+$FormOBSNDI.Topmost = $True
+$FormOBSNDI.MaximizeBox = $Formalse
+$FormOBSNDI.MinimizeBox = $Formalse
+#Add them to form and active it
+$FormOBSNDI.Controls.Add($Button1)
+$FormOBSNDI.Add_Shown({$FormOBSNDI.Activate()})
+$FormOBSNDI.ShowDialog()
 cls
 echo "*************************************************"
 echo "*                                               *"
@@ -357,25 +394,97 @@ echo "*                                               *"
 echo "*************************************************"
 echo " "
 echo " "
-echo "Step 8 of 8. Downloading and installing OBS-NDI plugin..."
+echo "Step 8 of 8. Installing OBS-NDI plugin..."
 echo " "
-Invoke-WebRequest -Uri https://github.com/Palakis/obs-ndi/releases/download/4.6.0/obs-ndi-4.6.0-Windows-Installer.exe -OutFile "C:\Program Files (x86)\nowyouhearme\download\obs-ndi-4.6.0-Windows-Installer.exe"
 & "C:\Program Files (x86)\nowyouhearme\download\obs-ndi-4.6.0-Windows-Installer.exe"
 sleep 5
+New-Item -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce\ -Value "C:\Program Files (x86)\nowyouhearme\NowYouHearMePostInstallation.pdf" -Force
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol UDP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files (x86)\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol UDP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files (x86)\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol TCP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol TCP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "OBS Studio" -Direction Inbound -Program "C:\program files\obs-studio\bin\64bit\obs64.exe" -Profile Public -Protocol TCP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "OBS Studio" -Direction Inbound -Program "C:\program files\obs-studio\bin\64bit\obs64.exe" -Profile Public -Protocol UDP -RemoteAddress Any -Action Allow >$null 2>&1
-sleep 20
-echo "Installed the OBS-NDI plugins + the NDI runtime."
-sleep 5
-echo " "
-sleep 5
-echo "Please reboot your computer after installation..."
-sleep 5
+sleep 30
+if (Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll"){
 $reboot="yes"
+echo "Installed the OBS-NDI plugins + the NDI runtime."
+echo "Please reboot your computer after installation..."
+}
+if (!(Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll")){
+sleep 10
+if (Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll"){
+$reboot="yes"
+echo "Installed the OBS-NDI plugins + the NDI runtime."
+echo "Please reboot your computer after installation..."
+}
+}
+if (!(Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll")){
+sleep 5
+$FormOBSNDI = New-Object System.Windows.Forms.Form
+$FormOBSNDI.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon("$localpath\nowyouhearme\images\smallicon.ico")
+$FormOBSNDI.width = 600
+$FormOBSNDI.height = 200
+$FormOBSNDI.backcolor = [System.Drawing.Color]::Gainsboro
+$FormOBSNDI.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::Fixed3D
+$FormOBSNDI.Text = "VB-CABLE Reminder"
+$FormOBSNDI.Font = New-Object System.Drawing.Font("Verdana",9,[System.Drawing.FontStyle]::Bold)
+$FormOBSNDI.maximumsize = New-Object System.Drawing.Size(600,200)
+$FormOBSNDI.startposition = "centerscreen"
+$FormOBSNDI.KeyPreview = $True
+$FormOBSNDI.Add_KeyDown({if ($_.KeyCode -eq "Enter") {}})
+$FormOBSNDI.Add_KeyDown({if ($_.KeyCode -eq "Escape") 
+    {$FormOBSNDI.Close()}})
+$label = New-Object System.Windows.Forms.Label
+$label.Location = New-Object System.Drawing.Point(10,20)
+$label.Size = New-Object System.Drawing.Size(600,85)
+$label.Text = 'Waiting for user to install. Step 8 of 8. Click OK.
+
+OBS-NDI is from the developer, Palakis. It also installs the NDI runtime.
+
+https://github.com/Palakis/obs-ndi'
+$FormOBSNDI.Controls.Add($label)
+#Draw buttons 
+$Button1 = new-object System.Windows.Forms.Button
+$Button1.Location = new-object System.Drawing.Size(230,105)
+$Button1.Size = new-object System.Drawing.Size(100,30)
+$Button1.Text = "OK"
+$Button1.Add_MouseHover({$Button1.backcolor = [System.Drawing.Color]::Azure})
+$Button1.Add_MouseLeave({$Button1.backcolor = [System.Drawing.Color]::Gainsboro})
+$Button1.Add_Click({$FormOBSNDI.Dispose()})
+$FormOBSNDI.Topmost = $True
+$FormOBSNDI.MaximizeBox = $Formalse
+$FormOBSNDI.MinimizeBox = $Formalse
+#Add them to form and active it
+$FormOBSNDI.Controls.Add($Button1)
+$FormOBSNDI.Add_Shown({$FormOBSNDI.Activate()})
+$FormOBSNDI.ShowDialog()
+cls
+echo "*************************************************"
+echo "*                                               *"
+echo "* Welcome to the NowYouHear.me installation...  *"
+echo "*                                               *"
+echo "*************************************************"
+echo " "
+echo " "
+echo "Step 8 of 8. Installing OBS-NDI plugin..."
+echo " "
+sleep 15
+if (Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll"){
+$reboot="yes"
+echo "Installed the OBS-NDI plugins + the NDI runtime."
+echo "Please reboot your computer after installation..."
+}
+if (!(Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll")){
+sleep 10
+if (Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll"){
+$reboot="yes"
+echo "Installed the OBS-NDI plugins + the NDI runtime."
+echo "Please reboot your computer after installation..."
+}
+}
+}
+if (Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll"){$reboot="yes"}
 echo " "
 }
 cls
@@ -423,6 +532,7 @@ $FormDone.MinimizeBox = $Formalse
 $FormDone.Controls.Add($Button1)
 $FormDone.Add_Shown({$FormDone.Activate()})
 $FormDone.ShowDialog()
+start "C:\Program Files (x86)\nowyouhearme\NowYouHearMePostInstallation.pdf"
 cls
 echo "*************************************************"
 echo "*                                               *"
@@ -431,8 +541,16 @@ echo "*                                               *"
 echo "*************************************************"
 echo " "
 echo " "
+sleep 4
 }
 if ($reboot){
+$preid=(Get-WmiObject Win32_PnPEntity | Select Name,DeviceID | Select-String -Pattern "VB-Audio" | Select-String -Pattern "0.0.1" | %{$_ -replace "@{Name=CABLE Output "} | %{$_ -replace "(VB-Audio Virtual Cable)"}) | %{$_ -replace "@{Name=Hi-Fi Cable Output "}
+if (!$preid){
+& "C:\Program Files (x86)\nowyouhearme\download\vbcable\VBCABLE_Setup_x64.exe"
+sleep 15
+start https://www.vb-audio.com/Services/licensing.htm
+sleep 3
+}
 Function CloseFormRebootYes{
 $FormReboot.Dispose()
 cls
@@ -498,6 +616,7 @@ echo "*                                               *"
 echo "*************************************************"
 echo " "
 echo " "
+sleep 4
 }
 cls
 echo "*************************************************"
@@ -559,4 +678,5 @@ echo "*                                               *"
 echo "*************************************************"
 echo " "
 echo " "
+sleep 4
 }
