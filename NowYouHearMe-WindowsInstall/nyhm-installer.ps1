@@ -153,7 +153,7 @@ echo "*************************************************"
 echo " "
 echo " "
 if (!(Test-Path "C:\Program Files (x86)\nowyouhearme\images\nowyouhearme_icon.ico")){
-xcopy /y /E $localpath\nowyouhearme "C:\Program Files (x86)\" >$null 2>&1
+xcopy /y /E $localpath\nowyouhearme "C:\Program Files (x86)\nowyouhearme\" >$null 2>&1
 echo " "
 echo "Copied nowyouhearme files to C:\Program Files (x86)\nowyouhearme\"
 sleep 2
@@ -367,13 +367,13 @@ New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol TCP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "OBS Studio" -Direction Inbound -Program "C:\program files\obs-studio\bin\64bit\obs64.exe" -Profile Public -Protocol TCP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "OBS Studio" -Direction Inbound -Program "C:\program files\obs-studio\bin\64bit\obs64.exe" -Profile Public -Protocol UDP -RemoteAddress Any -Action Allow >$null 2>&1
-sleep 25
+sleep 20
 echo "Installed the OBS-NDI plugins + the NDI runtime."
 sleep 5
 echo " "
 sleep 5
 echo "Please reboot your computer after installation..."
-sleep 35
+sleep 5
 $reboot="yes"
 echo " "
 }
