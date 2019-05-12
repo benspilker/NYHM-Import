@@ -9,7 +9,7 @@ $woot.MinimizeBox = $Formalse
 $woot.ShowInTaskbar = $Formalse
 $woot.FormBorderStyle = "FixedDialog"
 $woot.startposition = "centerscreen"
-$woot.BackgroundImage = [system.drawing.image]::FromFile("C:\Program Files (x86)\nowyouhearme\images\nhym-welcome.png")
+$woot.BackgroundImage = [system.drawing.image]::FromFile("C:\Program Files (x86)\nowyouhearme\images\nyhm-welcome.png")
 $woot.Width = 800
 $woot.Height = 185
 [void]$woot.Show()
