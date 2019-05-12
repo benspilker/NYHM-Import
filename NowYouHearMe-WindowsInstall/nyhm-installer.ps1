@@ -398,7 +398,7 @@ echo "Step 8 of 8. Installing OBS-NDI plugin..."
 echo " "
 & "C:\Program Files (x86)\nowyouhearme\download\obs-ndi-4.6.0-Windows-Installer.exe"
 sleep 5
-New-Item -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce\ -Value "C:\Program Files (x86)\nowyouhearme\NowYouHearMePostInstallation.pdf" -Force
+New-Item -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce\ -Value "C:\Program Files (x86)\nowyouhearme\NowYouHearMePostInstallation.pdf" -Force >$null 2>&1
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol UDP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files (x86)\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol UDP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files (x86)\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol TCP -RemoteAddress Any -Action Allow >$null 2>&1
