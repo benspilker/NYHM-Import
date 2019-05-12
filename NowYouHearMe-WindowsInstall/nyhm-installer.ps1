@@ -283,7 +283,7 @@ choco install bonjour -y >$null 2>&1
 echo " "
 echo "Installed Apple Bonjour for peer-to-peer discovery."
 }
-xcopy /y "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1" "C:\ProgramData\nowyouhearme\" -Force >$null 2>&1
+xcopy /y "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1" "C:\ProgramData\nowyouhearme\" >$null 2>&1
 Remove-Item -path "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1"
 xcopy /y "C:\Program Files (x86)\nowyouhearme\NowYouHearMeConnect.lnk" C:\Users\Public\Desktop\ >$null 2>&1
 cls
@@ -335,7 +335,7 @@ $FormVB.Controls.Add($label)
 $Button1 = new-object System.Windows.Forms.Button
 $Button1.Location = new-object System.Drawing.Size(230,105)
 $Button1.Size = new-object System.Drawing.Size(100,30)
-$Button1.Text = "Okay"
+$Button1.Text = "OK"
 $Button1.Add_MouseHover({$Button1.backcolor = [System.Drawing.Color]::Azure})
 $Button1.Add_MouseLeave({$Button1.backcolor = [System.Drawing.Color]::Gainsboro})
 $Button1.Add_Click({$FormVB.Dispose()})
