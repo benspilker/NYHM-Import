@@ -153,7 +153,7 @@ echo "*************************************************"
 echo " "
 echo " "
 if (!(Test-Path "C:\Program Files (x86)\nowyouhearme\images\nowyouhearme_icon.ico")){
-xcopy /y /E $$localpath\nowyouhearme "C:\Program Files (x86)\nowyouhearme\" >$null 2>&1
+xcopy /y /E $localpath\nowyouhearme "C:\Program Files (x86)\" >$null 2>&1
 echo " "
 echo "Copied nowyouhearme files to C:\Program Files (x86)\nowyouhearme\"
 sleep 2
