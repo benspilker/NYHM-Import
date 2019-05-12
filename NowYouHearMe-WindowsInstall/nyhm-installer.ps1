@@ -279,9 +279,10 @@ echo " "
 echo " "
 echo "Step 6 of 8. Installing Apple Bonjour. Please wait..."
 echo " "
-choco install bonjour -y >$null 2>&1
+Start-Process "$localpath\installbonjour.bat" -NoNewWindow -Verb runAs >$null 2>&1
 echo " "
 echo "Installed Apple Bonjour for peer-to-peer discovery."
+sleep 1
 }
 xcopy /y "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1" "C:\ProgramData\nowyouhearme\" >$null 2>&1
 Remove-Item -path "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1"
