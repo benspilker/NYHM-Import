@@ -161,11 +161,11 @@ $Form1.Add_Shown({$Form1.Activate()})
 $Form1.ShowDialog()
 }
 Function Map1{
-Start-Process "C:\Program Files (x86)\nowyouhearme\scripts\NowYouHearMeConnect-Host.exe" -Verb runAs
+& "C:\Program Files (x86)\nowyouhearme\scripts\NowYouHearMeConnect-Host.lnk"
 $Form1.Dispose()
 }
 Function Map2{
-Start-Process "C:\Program Files (x86)\nowyouhearme\scripts\NowYouHearMeConnect-Listener.exe" -Verb runAs
+& "C:\Program Files (x86)\nowyouhearme\scripts\NowYouHearMeConnect-Listener.lnk"
 $Form2.Dispose()
 }
 #Map
