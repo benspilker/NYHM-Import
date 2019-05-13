@@ -262,15 +262,15 @@ echo " "
 echo " "
 echo "Step 6 of 8. Installing Apple Bonjour. Please wait..."
 echo " "
-Start-Process "$localpath\installbonjour.bat" -NoNewWindow
+choco install bonjour -y >$null 2>&1
 sleep 8
 if (!(Test-Path C:\Windows\system32\dns-sd.exe)){
 sleep 8
-Start-Process "$localpath\installbonjour.bat" -NoNewWindow
+choco install bonjour -y >$null 2>&1
 sleep 8
 if (!(Test-Path C:\Windows\system32\dns-sd.exe)){
 sleep 8
-Start-Process "$localpath\installbonjour.bat" -NoNewWindow
+choco install bonjour -y >$null 2>&1
 }
 }
 if (Test-Path C:\Windows\system32\dns-sd.exe){
@@ -546,8 +546,7 @@ sleep 4
 if ($reboot){
 $preid=(Get-WmiObject Win32_PnPEntity | Select Name,DeviceID | Select-String -Pattern "VB-Audio" | Select-String -Pattern "0.0.1" | %{$_ -replace "@{Name=CABLE Output "} | %{$_ -replace "(VB-Audio Virtual Cable)"}) | %{$_ -replace "@{Name=Hi-Fi Cable Output "}
 if (!$preid){
-& "C:\Program Files (x86)\nowyouhearme\download\vbcable\VBCABLE_Setup_x64.exe"
-sleep 15
+sleep 5
 start https://www.vb-audio.com/Services/licensing.htm
 sleep 3
 }
