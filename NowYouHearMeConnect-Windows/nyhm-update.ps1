@@ -6,10 +6,8 @@ Write-Host " "
 Invoke-WebRequest -Uri "https://www.dropbox.com/s/9g6gc8ohe66x53x/nowyouhearme.zip?dl=1" -OutFile "$ENV:UserProfile\AppData\Local\Temp\nowyouhearme.zip"
 expand-archive -path "$ENV:UserProfile\AppData\Local\Temp\nowyouhearme.zip" -destinationpath "$ENV:UserProfile\AppData\Local\Temp\nyhm-update\"
 Remove-Item -path "$ENV:UserProfile\AppData\Local\Temp\nowyouhearme.zip"
-xcopy /y /E "$ENV:UserProfile\AppData\Local\Temp\nyhm-update" "C:\Program Files (x86)\" >$null 2>&1
-Remove-Item -path "$ENV:UserProfile\AppData\Local\Temp\nyhm-update" -recurse
-xcopy /y "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1" "C:\ProgramData\nowyouhearme\" >$null 2>&1
-Remove-Item -path "C:\Program Files (x86)\nowyouhearme\scripts\nyhm-update.ps1"
+xcopy /y /E "$ENV:UserProfile\AppData\Local\Temp\nyhm-update" "C:\Program Files (x86)\" -Force >$null 2>&1
+Remove-Item -path "$ENV:UserProfile\AppData\Local\Temp\nyhm-update\" -Recurse
 sleep 1
 $FormUpdate = New-Object System.Windows.Forms.Form
 $FormUpdate.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon('C:\Program Files (x86)\nowyouhearme\images\smallicon.ico')
