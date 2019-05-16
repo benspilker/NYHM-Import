@@ -179,6 +179,7 @@ echo " "
 echo " "
 echo "Installed chocolately.org framework to install programs from the chocolatey repository." 
 echo " "
+if (Test-Path "C:\Users\ben\AppData\Roaming\obs-studio\global.ini"){xcopy "C:\Users\ben\AppData\Roaming\obs-studio" "C:\Users\ben\AppData\Roaming\obs-studio-before-nyhm\"} >$null 2>&1
 if (!(Test-Path "C:\Program Files\obs-studio\bin\64bit\obs64.exe")){
 cls
 echo "*************************************************"
