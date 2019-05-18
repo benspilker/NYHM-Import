@@ -1,4 +1,5 @@
 #!/bin/bash
+clear
 echo "******************************************" 
 echo " " 
 echo "         Welcome to NowYouHear.me     "
@@ -7,6 +8,7 @@ echo "******************************************"
 echo " "
 osver=$(defaults read loginwindow SystemVersionStampAsString | sed 's/10.//g' )
 intosver=$(printf %.0f $(echo "$osver" | bc -l))
+hostname=$(hostname)
 if [[ $intosver -lt 11 ]]; then 
 osascript -e 'display dialog "You need Mac OS 10.11 El Capitan or Higher for this application to work, please upgrade your Mac OS." buttons {"Exit"}'
 sleep 1
@@ -19,7 +21,6 @@ if [ -f ~/Downloads/.usr/local/bin/jq-osx-amd64 ]; then cp -pr ~/Downloads/.usr/
 if [ -f /Applications/.nowyouhearme/jq-osx-amd64 ]; then
 osascript <<EOT
 display dialog "NowYouHearMe Connect needs to fix itself and move supporting files from ( /Applications/.nowyouhearme ) to 
-
 /Library/Application Support/nowyouhearme" & "
 " & "
 This way files are stored in a more correct location." & "
@@ -41,24 +42,25 @@ display dialog "Your previous session settings have been cleared" & "\n" & "\nCl
 delay 1
 EOT
 fi
-echo "Enter your nowyouhear.me account email and pin in the dialog prompts."
+echo "Enter your nowyouhear.me account email or username,"
+echo "then pin in the dialog prompts."
 echo " "
 echo "Next you'll be joined to your NowYouHear.me network."
 echo "This will require your computer password."
 echo " "
 sleep 2
-email=$(/usr/bin/osascript <<EOT
-set emailresp to display dialog "What is your NowYouHear.me account email?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK" , "No Account? Create One Here"}
+emailoruser=$(/usr/bin/osascript <<EOT
+set emailresp to display dialog "What is your NowYouHear.me account email or username?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK" , "No Account? Create One Here"}
 if button returned of emailresp is "No Account? Create One Here" then 
-	do shell script "if [ -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/membership-account/membership-levels/ -a 'Google Chrome.app'; fi"
-	do shell script "if [ ! -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/membership-account/membership-levels/ -a Safari.app; fi"
+	open location "https://nowyouhear.me/membership-account/membership-levels/"
 end if
 if button returned of emailresp is "OK" then
 	delay 0.5
-	set email to the text returned of emailresp
+	set emailoruser to the text returned of emailresp
 end if
 EOT)
-if [ -z "$email" ]; then
+emailoruser=$(echo $emailoruser | sed 's/ //g')
+if [ -z "$emailoruser" ]; then
 sleep 3
 osascript <<EOT
 display dialog "NowYouHearMe Connect will now exit so that you can create your account" & "\n" & "\nNote, ONLY THE HOST NEEDS TO CREATE AN ACCOUNT." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
@@ -68,16 +70,29 @@ osascript -e 'tell application "NowYouHearMeConnect" to quit'
 osascript -e 'tell application "Terminal" to quit' &
 exit
 fi
-ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].config | select(.name == "'$email'")')
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].config | select(.name == "'$emailoruser'")')
+echo " "
+ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id | sed -e 's/^"//' -e 's/"$//')
+if [ -z "$ztid" ]; then
+if [ -n "$emailoruser" ]; then
+userstring=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].rulesSource' | sed "s/drop not ethertype ipv4 and not ethertype arp; drop sport 1-4999; drop dport 1-4999; drop sport 5009-5352; drop dport 5009-5352; drop sport 5354-5960; drop dport 5354-5960; drop sport 5962-5999; drop dport 5962-5999; drop sport 6006-6959; drop dport 6006-6959; drop sport 6961-20807; drop dport 6961-20807; drop sport 20809-49151; drop dport 20809-49151; accept;//g" | sed -e 's/^"//' -e 's/"$//' | sed "s/#//g" | sed "s/;//g" | grep "$emailoruser")
+user=$(echo $userstring | sed 's/[:].*$//')
+fi
+fi
 echo " "
 echo "Looking up account info..."
-echo " "
-ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id | sed -e 's/^"//' -e 's/"$//')
+if [[ $emailoruser != $user ]]; then
 if [ -z "$ztid" ]; then
-email=$(/usr/bin/osascript <<EOT
-set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account email?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+emailoruser=$(/usr/bin/osascript <<EOT
+set emailoruser to the text returned of (display dialog "The email or username entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
-if [ -z "$email" ]; then
+emailoruser=$(echo $emailoruser | sed 's/ //g')
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].config | select(.name == "'$emailoruser'")')
+ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id | sed -e 's/^"//' -e 's/"$//')
+if [ -z "$ztid" ]; then userstring=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].rulesSource' | sed "s/drop not ethertype ipv4 and not ethertype arp; drop sport 1-4999; drop dport 1-4999; drop sport 5009-5352; drop dport 5009-5352; drop sport 5354-5960; drop dport 5354-5960; drop sport 5962-5999; drop dport 5962-5999; drop sport 6006-6959; drop dport 6006-6959; drop sport 6961-20807; drop dport 6961-20807; drop sport 20809-49151; drop dport 20809-49151; accept;//g" | sed -e 's/^"//' -e 's/"$//' | sed "s/#//g" | sed "s/;//g" | grep "$emailoruser"); fi
+fi
+fi
+if [ -z "$emailoruser" ]; then
 sleep 1
 osascript <<EOT
 display dialog "Well, that’s dumb? Why would you not enter anything? NowYouHearMe Connect will now exit." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"My Bad"}
@@ -87,14 +102,21 @@ osascript -e 'tell application "NowYouHearMeConnect" to quit'
 osascript -e 'tell application "Terminal" to quit' &
 exit
 fi
-ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].config | select(.name == "'$email'")')
-ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id | sed -e 's/^"//' -e 's/"$//')
-fi
+if [[ $emailoruser != $user ]]; then
 if [ -z "$ztid" ]; then
-email=$(/usr/bin/osascript <<EOT
-set email to the text returned of (display dialog "The email entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account email?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME EMAIL ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
+emailoruser=$(/usr/bin/osascript <<EOT
+set emailoruser to the text returned of (display dialog "The email or username entered was not found. Try again." & "\n" & "\nWhat is your NowYouHear.me account?\n\nLISTENER AND HOST MUST SIGN IN WITH THE SAME ACCOUNT." default answer "" with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
-if [ -z "$email" ]; then
+emailoruser=$(echo $emailoruser | sed 's/ //g')
+ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].config | select(.name == "'$emailoruser'")')
+ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id | sed -e 's/^"//' -e 's/"$//')
+if [ -z "$ztid" ]; then 
+userstring=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].rulesSource' | sed "s/drop not ethertype ipv4 and not ethertype arp; drop sport 1-4999; drop dport 1-4999; drop sport 5009-5352; drop dport 5009-5352; drop sport 5354-5960; drop dport 5354-5960; drop sport 5962-5999; drop dport 5962-5999; drop sport 6006-6959; drop dport 6006-6959; drop sport 6961-20807; drop dport 6961-20807; drop sport 20809-49151; drop dport 20809-49151; accept;//g" | sed -e 's/^"//' -e 's/"$//' | sed "s/#//g" | sed "s/;//g" | grep "$emailoruser"); 
+user=$(echo $userstring | sed 's/[:].*$//')
+fi
+fi
+fi
+if [ -z "$emailoruser" ]; then
 sleep 1
 osascript <<EOT
 display dialog "Well, that’s dumb? Why would you not enter anything? NowYouHearMe Connect will now exit." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"My Bad"}
@@ -104,12 +126,10 @@ osascript -e 'tell application "NowYouHearMeConnect" to quit'
 osascript -e 'tell application "Terminal" to quit' &
 exit
 fi
-ztid=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.[].config | select(.name == "'$email'")')
-ztid=$(echo $ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' .id | sed -e 's/^"//' -e 's/"$//')
-fi
+if [[ $emailoruser != $user ]]; then
 if [ -z "$ztid" ]; then
 osascript <<EOT
-display dialog "Email account still not found." & "\n" & "\nClicking OK will exit and take you to www.NowYouHear.me." & "\n" & "\nLog in to the website to confirm your subscription is still valid and active." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
+display dialog "Account still not found." & "\n" & "\nClicking OK will exit and take you to www.NowYouHear.me." & "\n" & "\nLog in to the website to confirm your subscription is still valid and active." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"}
 EOT
 sleep 1
 if [ -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me -a 'Google Chrome.app'; fi
@@ -119,10 +139,16 @@ osascript -e 'tell application "NowYouHearMeConnect" to quit'
 osascript -e 'tell application "Terminal" to quit' &
 exit
 fi
+fi
 passcode=$(/usr/bin/osascript <<EOT
 set passcode to the text returned of (display dialog "What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
 EOT)
+if [ -z "$userstring" ]; then
 passcodeconfig=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.description' | sed -e 's/^"//' -e 's/"$//')
+fi
+if [ -n "$userstring" ]; then 
+passcodeconfig=$(echo $userstring | sed "s/$emailoruser://g" | sed 's/[:].*$//')
+fi
 if [[ $passcode == " " ]]; then
 passcode=$(/usr/bin/osascript <<EOT
 set passcode to the text returned of (display dialog "Passcode not found. Try again. What is your NowYouHear.me 4 digit passcode?" default answer "" with hidden answer with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"OK"})
@@ -153,9 +179,15 @@ passcheck2="3"
 if [ ! -z $passcodeconfig ]; then passcheck1="1"; fi
 if [ $passcode == $passcodeconfig ]; then passcheck2="1"; fi
 if [ $passcheck1 == $passcheck2 ]; then
+if [ -n "$userstring" ]; then
+ztid=$(echo $userstring | sed "s/$emailoruser://g" | sed 's/.*://')
+fi
 echo " "
 echo "Connecting to your NowYouHear.me network..."
-count=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.totalMemberCount')
+nyhmnetwork=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtFFh6RPE9av7ZMETfUmaKAXpHJBq' https://my.zerotier.com/api/network/$ztid)
+devicelimit1more=$(echo $nyhmnetwork | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.config.ipAssignmentPools' | tr -d '[ { "ipRangeStart": "172.22.172.1", "ipRangeEnd": "172.22.172.',},])
+devicelimit=$(($devicelimit1more - 1))
+count=$(echo $nyhmnetwork | '/Library/Application Support/nowyouhearme/jq-osx-amd64' '.totalMemberCount')
 count1=$count
 if (($count == 0 )); then count1=1; fi
 filedate=$(date "+%m-%d-%y")
@@ -174,9 +206,17 @@ do shell script "sudo cp -r /Applications/NowYouHearMeConnect.app/Contents/Resou
 do shell script "sudo mv ~/'Library/Application Support/obs-studio/basic/scenes/Untitled-host-with-sf-as-aux1.json' ~/'Library/Application Support/obs-studio/basic/scenes/Untitled.json'" with administrator privileges
 do shell script "sudo cp -r /Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/global-mainoutput-true.ini  ~/'Library/Application Support/obs-studio/'" with administrator privileges
 do shell script "sudo mv ~/'Library/Application Support/obs-studio/global-mainoutput-true.ini' ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
+do shell script "sudo cp -pr '/Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/basic.ini' ~/'Library/Application Support/obs-studio/basic/profiles/Untitled/'" with administrator privileges
 tell application "Terminal" to activate
 delay 2
 EOT
+clear
+echo "******************************************" 
+echo " " 
+echo "         Welcome to NowYouHear.me     "
+echo " " 
+echo "******************************************" 
+echo " "
 echo "Looking for NowYouHear.me network address..."
 echo " "
 sleep 1
@@ -207,14 +247,13 @@ echo " "
 sleep 2
 onnetwork=$(ifconfig | grep -oh "172.22.172.255" )
 fi
-if ([ $count1 -gt 5 ] && [ -z "$onnetwork" ]); then
+if ([ $count1 -gt $devicelimit ] && [ -z "$onnetwork" ]); then
 osascript <<EOT
 display dialog "Well there's good news and bad news..." & "
 " & "
 The good news is that you've been using NowYouHear.me on several devices, which is really rad. So good job!" & "
 " & "
-The bad news is that you have exceeded the 5 device limit on this account. 
-
+The bad news is that you have exceeded the $devicelimit device limit on this account. 
 To fix this, you must contact NowYouHear.me support to clear unused devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Exit and Go to Website"}
 do shell script "sudo /usr/local/bin/zerotier-cli leave $ztid" with administrator privileges
 delay 1
@@ -262,12 +301,12 @@ fi
 if [ ! -f '/Library/Application Support/nowyouhearme/last-session-ztid.txt' ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
 sleep 1
 echo " "
-echo "Network address found."
+echo "Woohoo! Network address found!"
 echo " "
 osascript <<EOT
-display dialog "Call your NowYouHear.me friend on the phone and confirm that they are ready to Listen to your session." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Yes, we are ready"}
+display dialog "Call your NowYouHear.me friend on the phone and confirm that they are ready to Listen to your session.\n\nYes Macs can talk to PCs and vice-versa." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Yes, we are ready"}
 delay 1
-display dialog "You are now connected to your NowYouHear.me network." & "\n" & "\nYou can add up to 5 devices to your own NowYouHear.me account." & "\n" & "\nContact NowYouHear.me support if you need to remove unused devices." & "\n" & "\nYour account has used $count1 out of 5 available devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"I Understand, Let’s Continue"}
+display dialog "You are now connected to your NowYouHear.me network." & "\n" & "\nYou can add up to $devicelimit devices to your own NowYouHear.me account." & "\n" & "\nContact NowYouHear.me support if you need to remove unused devices." & "\n" & "\nYour account has previously used $count1 out of $devicelimit available devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"I Understand, Let’s Continue"}
 delay 1
 display dialog "Now you, as the Host, need to setup your computer audio to route out sound." & "
 " & "
@@ -380,14 +419,14 @@ log " "
 log " "
 log "******************************************************************************"
 log " " 
-log "You are connected to $email's NowYouHear.me network!"
+log "You are connected to $emailoruser's NowYouHear.me network!"
 log " " 
 log "Keep this window open." 
 log " " 
 log "******************************************************************************"
 log " "
 log " "
-log "Your computer's name is $(networksetup -getcomputername)."
+log "Your computer's name is $hostname."
 log " "
 log " "
 log " "
@@ -428,7 +467,7 @@ delay 0.5
 end if
 if button returned of listenconnect is "No, Retry?" then 
 delay 2
-set listenconnect2 to display dialog "Was the Listener computer able to connect to hear your computer audio?" & "\n" & "\nIf not, you (the Host) will have to Sign Out and Sign Back In." & "\n" & "\nMAKE SURE YOU AND THE LISTENER ARE USING THE SAME EMAIL." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No, Sign Out and Sign Back In" , "Yes"}
+set listenconnect2 to display dialog "Was the Listener computer able to connect to hear your computer audio?" & "\n" & "\nIf not, you (the Host) will have to Sign Out and Sign Back In." & "\n" & "\nMAKE SURE YOU AND THE LISTENER ARE USING THE SAME ACCOUNT." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"No, Sign Out and Sign Back In" , "Yes"}
 if button returned of listenconnect2 is "Yes" then
 delay 0.5
 end if
@@ -476,11 +515,8 @@ if button returned of listenconnect2 is "No" then
 tell application "OBS" to quit
 delay 1
 display dialog "Hmmm, today is just not your day.
-
 Listener and Host Computers could not autodetect each other.
-
 Try you and the Listener rebooting both your computers?
-
 Try again later, but for now you may want to change your DAW's audio output preferences back to your internal speakers or audio interface (setting it back to normal)." buttons {"Well, crap...Exit"}
 end if 
 end if
@@ -503,26 +539,64 @@ fi
 fi
 if [ ! -f '/Library/Application Support/nowyouhearme/last-session-ztid.txt' ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
 osascript <<EOT
-delay 2
-display dialog "Finally, the Listener needs to be able to see and control the Hosts screen. Click Next to open TeamViewer." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Next"}
-EOT
-osascript -e 'tell application "TeamViewer" to activate' >>/dev/null 2>&1
-sleep 1
-/Applications/TeamViewer.app/Contents/MacOS/TeamViewer >>/dev/null 2>&1
-sleep 1
-osascript <<EOT
-delay 2
-display dialog "The Host must allow Teamviewer to control this computer." & "
+set TVPorC to display dialog "Finally, the Listener needs to be able to see and control the Host (Your) screen.
+
+Is this session Personal or Commercial?
+
+Personal: Musicians on Home Computers.
+Click to open just TeamViewer.
+
+Commercial: Studios OR Anyone Offering Private Lessons.
+
+Click Commercial to buy TeamViewer or get a list of free trial screen share alternatives." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Commercial", "Personal"}
+if button returned of TVPorC is "Personal" then
+	tell application "TeamViewer" to activate
+	delay 1
+	do shell script "/Applications/TeamViewer.app/Contents/MacOS/TeamViewer >>/dev/null 2>&1"
+	delay 1
+	display dialog "The Host must allow Teamviewer to control this computer." & "
 " & "
 Once TeamViewer is an allowed app, give the Listener your TeamViewer ID and TeamViewer password over the phone." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Next"}
-delay 15
-display dialog "Once the Listener is connected, they should now be able to hear and see your computer." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"NowYouHearMe!"}
-log " "
+	delay 15
+	display dialog "Once the Listener and Host are connected, you should now be able to hear and see the Host computer." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"NowYouHearMe!"}
+	delay 3
+	log " "
+end if
+if button returned of TVPorC is "Commercial" then
+	set commercialoption to display dialog "Commercial use: 
+
+In this current session with you as the Host, the Listener would be remoting to your computer. Only one of you needs to buy a license.
+
+You can either view the cost of a TeamViewer license or view a list of free trial screen share alternatives." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"View Alternatives", "TeamViewer"}
+	if button returned of commercialoption is "TeamViewer" then
+		open location "https://www.teamviewer.com/en-us/buy-now/"
+		delay 5
+	end if
+	if button returned of commercialoption is "View Alternatives" then
+		set alternativelist to display dialog "Here are 3 Free Trial remote control/screen share alternatives.
+
+Mikogo: www.mikogo.com/download/
+
+Zoom (40min Free Trial): www.zoom.us/support/download
+
+ScreenLeap.com (40min Trial Screen Share only)" buttons {"Mikogo", "Zoom", "ScreenLeap"}
+		if button returned of alternativelist is "Mikogo" then
+			open location "https://mikogo.com/download/"
+		end if
+		if button returned of alternativelist is "Zoom" then
+			open location "https://zoom.us/support/download"
+		end if
+		if button returned of alternativelist is "ScreenLeap" then
+			open location "https://screenleap.com"
+		end if
+		delay 5
+	end if
+end if
 tell application "Terminal" to activate
 delay 1
 display dialog "You did it!" & "
 " & "
-You are all setup and ready to collaborate!" & "
+Once you have connected to screenshare, you are all setup and ready to collaborate!" & "
 " & "
 " & "
 DO NOT CLOSE THE TERMINAL WINDOW." & "
