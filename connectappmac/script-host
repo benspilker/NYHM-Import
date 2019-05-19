@@ -316,7 +316,7 @@ set sfroute to display dialog "Next, you’ll need to route audio from your DAW 
 " & "
 Open your DAWs preferences, click the Audio tab, and set your DAWs audio OUTPUT to Soundflower (2ch)." & "
 " & "
-This will temporarily mute your DAW until the next few steps." with icon caution buttons {"How do I do that?", "Next"}
+This will temporarily mute your DAW until the next few steps.\n\n(Optional) set your DAW audio INPUT to your interface or soundcard." with icon caution buttons {"How do I do that?", "Next"}
 if button returned of sfroute is "How do I do that?" then
 	do shell script "if [ -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/how-to-soundflower/ -a 'Google Chrome.app'; fi"
 	do shell script "if [ ! -f '/Applications/Google Chrome.app/Contents/Info.plist' ]; then open https://nowyouhear.me/how-to-soundflower/ -a Safari.app; fi"
@@ -565,7 +565,7 @@ end if
 if button returned of TVPorC is "Commercial" then
 	set commercialoption to display dialog "Commercial use: 
 
-In this current session with you as the Host, the Listener would be remoting to your computer. Only one of you needs to buy a license.
+In this session as the Host, the Listener would be remoting to your computer. Usually only one of you needs to buy a license.
 
 You can either view the cost of a TeamViewer license or view a list of free trial screen share alternatives." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"View Alternatives", "TeamViewer"}
 	if button returned of commercialoption is "TeamViewer" then

@@ -704,8 +704,10 @@ end if
 if button returned of TVPorC is "Commercial" then
 	set commercialoption to display dialog "Commercial use: 
 
-You can either purchase a TeamViewer license or view a list of free trial screen share alternatives." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"View Alternatives", "Buy TeamViewer"}
-	if button returned of commercialoption is "Buy TeamViewer" then
+In this session as the Listener, you would be remoting to the Host computer. Usually only one of you needs to buy a license.
+
+You can either view the cost of a TeamViewer license or view a list of free trial screen share alternatives." with icon file ("/Applications/TeamViewer.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"View Alternatives", "TeamViewer"}
+	if button returned of commercialoption is "TeamViewer" then
 		open location "https://www.teamviewer.com/en-us/buy-now/"
 		delay 5
 	end if
