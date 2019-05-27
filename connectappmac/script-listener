@@ -42,8 +42,34 @@ delay 1
 EOT
 fi
 osascript <<EOT
+set listenerspeed to display dialog "Your Internet must be a certain speed to avoid choppy audio.
+
+For Listeners, DOWNLOAD speed should be at least 10 Mbps.
+This test takes about a minute.
+
+You may click cancel to skip this test.
+
+Click OK to open browser to run a SpeedTest, then click GO."
+if button returned of listenerspeed is "OK" then
+	open location "https://nowyouhearme.speedtestcustom.com"
+	delay 45
+	display dialog "Download speed should be at least 10 Mbps.
+	
+If it is less, try a wired connection if possible or moving closer to your router." buttons {"OK"}
+end if
+if button returned of listenerspeed is "Cancel" then
+	delay 0.5
+end if
+delay 2
 display dialog "Call your friend on the phone and confirm that they are available to Host a session.\n\nYes Macs can talk to PCs and vice-versa." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Yes, We’re Ready"}
 EOT
+clear
+echo "******************************************" 
+echo " " 
+echo "         Welcome to NowYouHear.me     "
+echo " " 
+echo "******************************************" 
+echo " "
 echo " "
 echo "Enter the nowyouhear.me account email or username,"
 echo "then pin in the dialog prompts."
@@ -297,7 +323,7 @@ osascript <<EOT
 display dialog "You are now connected to the $emailoruser's NowYouHear.me network." & "\n" & "\nThis NowYouHear.me account can have up to $devicelimit devices." & "\n" & "\nHave the Host contact NowYouHear.me support if you need to remove unused devices." & "\n" & "\nThis account has previously used $count1 out of $devicelimit available devices." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"I Understand, Let's Continue"}
 delay 1
 log " "
-log "Woohoo! Network address found!"
+log "Woohoo! Network address found."
 log " "
 log "******************************************************************************"
 log " " 
@@ -321,7 +347,7 @@ EOT
 mkdir -p /Applications/.nowyouhearme/
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch.txt ) & sleep 1 ; kill $!
 ndisearch=$(</Applications/.nowyouhearme/ndisearch.txt)
-name=$(echo $ndisearch | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name=$(echo $ndisearch | cut -b 170-240 | sed "s/tcp. //g" | sed "s/tcp.//g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch.txt
 rm -rf /Applications/.nowyouhearme/
 name2=yes
@@ -336,7 +362,7 @@ EOT
 mkdir -p /Applications/.nowyouhearme/
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch2.txt ) & sleep 1 ; kill $!
 ndisearch2=$(</Applications/.nowyouhearme/ndisearch2.txt )
-name2=$(echo $ndisearch2 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name2=$(echo $ndisearch2 | cut -b 170-240 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch2.txt
 rm -rf /Applications/.nowyouhearme/
 name=$name2
@@ -355,7 +381,7 @@ if [ -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedlistener.
 mkdir -p /Applications/.nowyouhearme/
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch3.txt ) & sleep 1 ; kill $!
 ndisearch3=$(</Applications/.nowyouhearme/ndisearch3.txt)
-name3=$(echo $ndisearch3 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name3=$(echo $ndisearch3 | cut -b 170-240 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch3.txt
 rm -rf /Applications/.nowyouhearme/
 name=$name3
@@ -367,7 +393,7 @@ EOT
 mkdir -p /Applications/.nowyouhearme/
 ( dns-sd -B _ndi._tcp >/Applications/.nowyouhearme/ndisearch4.txt ) & sleep 1 ; kill $!
 ndisearch4=$(</Applications/.nowyouhearme/ndisearch4.txt)
-name4=$(echo $ndisearch4 | cut -b 168-210 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
+name4=$(echo $ndisearch4 | cut -b 170-240 | sed "s/tcp. //g" | sed "s/di.//g" | sed "s/i.//g" | sed "s/_//g" | grep -o '^\S*')
 rm /Applications/.nowyouhearme/ndisearch4.txt
 rm -rf /Applications/.nowyouhearme/
 name=$name4

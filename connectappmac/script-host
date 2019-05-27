@@ -42,6 +42,35 @@ display dialog "Your previous session settings have been cleared" & "\n" & "\nCl
 delay 1
 EOT
 fi
+osascript <<EOT
+set hostspeed to display dialog "Your Internet must be a certain speed to avoid choppy audio.
+
+For Hosts, UPLOAD speed should be at least 7 Mbps 
+(the number on the bottom). This test takes about a minute.
+
+You may click cancel to skip this test.
+
+Click OK to open browser to run a SpeedTest, then click GO."
+if button returned of hostspeed is "OK" then
+	open location "https://nowyouhearme.speedtestcustom.com"
+	delay 45
+	display dialog "Upload speed should be at least 7 Mbps.
+(the one on the bottom)
+	
+If it is less, try a wired connection if possible or moving closer to your router." buttons {"OK"}
+end if
+if button returned of hostspeed is "Cancel" then
+	delay 0.5
+end if
+EOT
+sleep 2
+clear
+echo "******************************************" 
+echo " " 
+echo "         Welcome to NowYouHear.me     "
+echo " " 
+echo "******************************************" 
+echo " "
 echo "Enter your nowyouhear.me account email or username,"
 echo "then pin in the dialog prompts."
 echo " "
@@ -301,7 +330,7 @@ fi
 if [ ! -f '/Library/Application Support/nowyouhearme/last-session-ztid.txt' ]; then osascript -e 'tell application "Terminal" to close second window' & exit; fi
 sleep 1
 echo " "
-echo "Woohoo! Network address found!"
+echo "Woohoo! Network address found."
 echo " "
 osascript <<EOT
 display dialog "Call your NowYouHear.me friend on the phone and confirm that they are ready to Listen to your session.\n\nYes Macs can talk to PCs and vice-versa." with icon file ("/Applications/NowYouHearMeConnect.app/Contents/Resources/AppIcon.icns" as POSIX file) buttons {"Yes, we are ready"}
@@ -438,12 +467,9 @@ log "NowYouHearMe Connect."
 log " "
 log " "
 log " " 
-log "You are the Host within this session." 
+log "You are the Host within this session. Play some audio through your DAW." 
 log " "
 delay 3
-do shell script "sudo rm -rf ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
-do shell script "sudo cp -pr '/Applications/NowYouHearMeConnect.app/Contents/Resources/OBSconfigs/global-default-ndi-out.ini' ~/'Library/Application Support/obs-studio/'" with administrator privileges
-do shell script "sudo mv ~/'Library/Application Support/obs-studio/global-default-ndi-out.ini' ~/'Library/Application Support/obs-studio/global.ini'" with administrator privileges
 EOT
 if [ ! -f /Applications/NowYouHearMeConnect.app/Contents/Resources/failedhost.txt ]; then
 osascript <<EOT
