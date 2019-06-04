@@ -13,9 +13,6 @@ $woot.BackgroundImage = [system.drawing.image]::FromFile("C:\Program Files (x86)
 $woot.Width = 800
 $woot.Height = 185
 [void]$woot.Show()
-reg add "HKCU\Console" /f /v "QuickEdit" /t REG_DWORD /d "0" >$null 2>&1
-Set-Itemproperty -path 'HKCU:\Console\%SystemRoot%_SysWOW64_WindowsPowerShell_v1.0_powershell.exe\' -Name 'QuickEdit' -value '0'
-Set-Itemproperty -path 'HKCU:\Console\%SystemRoot%_System32_WindowsPowerShell_v1.0_powershell.exe\' -Name 'QuickEdit' -value '0'
 ##This code below disables the X close window button. This makes the user keep this window open in order to make the user properly exit out of the program by disconnecting from the network first. Ghetto I know, eventually I would like a prompt that asks, are you sure you want to exit? Then runs the disconnect commands when Yes is clicked, then closes out.
 $code = @'
 using System;
@@ -58,10 +55,6 @@ $console.foregroundcolor = "white"
 $colors = $host.privatedata
 clear-host
 sleep 1
-if (Test-Path "$env:windir\System32\drivers\etc\hosts-prenyhm"){
-Remove-Item -path "$env:windir\System32\drivers\etc\hosts"
-Rename-Item -path "$env:windir\System32\drivers\etc\hosts-prenyhm" -NewName "$env:windir\System32\drivers\etc\hosts"
-}
 $woot.Dispose()
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
 [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") | Out-Null
@@ -106,6 +99,73 @@ $FormOnline.Add_Shown({$FormOnline.Activate()})
 $FormOnline.ShowDialog()
 Start-Sleep -Seconds 0.5
 stop-process -Id $PID
+}
+if (!(Test-Path "C:\Program Files (x86)\ZeroTier\One\ZeroTier One.exe")){
+cls
+echo "*************************************************"
+echo "*                                               *"
+echo "* Welcome to the NowYouHear.me installation...  *"
+echo "*                                               *"
+echo "*************************************************"
+echo " "
+echo " "
+echo "Step 3 of 8. Installing ZeroTier VPN. Please Wait..."
+echo " "
+choco install zerotier-one -y >$null 2>&1
+echo " "
+echo "Installed ZeroTier VPN."
+echo " "
+net stop ZeroTierOneService 
+echo " " 
+echo "Stopped the Zero Tier Service."
+echo " "
+Set-Service ZeroTierOneService -StartupType Manual
+echo " "
+echo "Made Zero Tier Service Manual Start, made it not auto start."
+echo " "
+}
+$ndivariable=$(Get-ChildItem Env: | Select Name  | Select-String -Pattern "NDI_RUNTIME")
+if (!$ndivariable){
+$FormOBSNDI = New-Object System.Windows.Forms.Form
+$FormOBSNDI.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon("$localpath\nowyouhearme\images\smallicon.ico")
+$FormOBSNDI.width = 600
+$FormOBSNDI.height = 200
+$FormOBSNDI.backcolor = [System.Drawing.Color]::Gainsboro
+$FormOBSNDI.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::Fixed3D
+$FormOBSNDI.Text = "VB-CABLE Reminder"
+$FormOBSNDI.Font = New-Object System.Drawing.Font("Verdana",9,[System.Drawing.FontStyle]::Bold)
+$FormOBSNDI.maximumsize = New-Object System.Drawing.Size(600,200)
+$FormOBSNDI.startposition = "centerscreen"
+$FormOBSNDI.KeyPreview = $True
+$FormOBSNDI.Add_KeyDown({if ($_.KeyCode -eq "Enter") {}})
+$FormOBSNDI.Add_KeyDown({if ($_.KeyCode -eq "Escape") 
+    {$FormOBSNDI.Close()}})
+$label = New-Object System.Windows.Forms.Label
+$label.Location = New-Object System.Drawing.Point(10,20)
+$label.Size = New-Object System.Drawing.Size(600,85)
+$label.Text = 'NDI Runtime not found. To fix, Click OK and run the install popup.
+
+OBS-NDI is from the developer, Palakis.
+
+https://github.com/Palakis/obs-ndi'
+$FormOBSNDI.Controls.Add($label)
+#Draw buttons 
+$Button1 = new-object System.Windows.Forms.Button
+$Button1.Location = new-object System.Drawing.Size(230,105)
+$Button1.Size = new-object System.Drawing.Size(100,30)
+$Button1.Text = "OK"
+$Button1.Add_MouseHover({$Button1.backcolor = [System.Drawing.Color]::Azure})
+$Button1.Add_MouseLeave({$Button1.backcolor = [System.Drawing.Color]::Gainsboro})
+$Button1.Add_Click({$FormOBSNDI.Dispose()})
+$FormOBSNDI.Topmost = $True
+$FormOBSNDI.MaximizeBox = $Formalse
+$FormOBSNDI.MinimizeBox = $Formalse
+#Add them to form and active it
+$FormOBSNDI.Controls.Add($Button1)
+$FormOBSNDI.Add_Shown({$FormOBSNDI.Activate()})
+$FormOBSNDI.ShowDialog()
+& "C:\Program Files (x86)\nowyouhearme\download\obs-ndi-4.6.0-Windows-Installer.exe"
+sleep 40
 }
 Function UpdateScript{
 $FormCheckUpdate.Dispose()
