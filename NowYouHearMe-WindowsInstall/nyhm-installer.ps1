@@ -179,7 +179,7 @@ echo " "
 echo " "
 echo "Installed chocolately.org framework to install programs from the chocolatey repository." 
 echo " "
-if (Test-Path "C:\Users\ben\AppData\Roaming\obs-studio\global.ini"){xcopy "C:\Users\ben\AppData\Roaming\obs-studio" "C:\Users\ben\AppData\Roaming\obs-studio-before-nyhm\"} >$null 2>&1
+if (Test-Path "C:\Users\ben\AppData\Roaming\obs-studio\global.ini"){xcopy "C:\Users\ben\AppData\Roaming\obs-studio" "C:\Users\ben\AppData\Roaming\obs-studio-before-nyhm\"}
 if (!(Test-Path "C:\Program Files\obs-studio\bin\64bit\obs64.exe")){
 cls
 echo "*************************************************"
@@ -293,10 +293,6 @@ echo " "
 echo " "
 $preid=(Get-WmiObject Win32_PnPEntity | Select Name,DeviceID | Select-String -Pattern "VB-Audio" | Select-String -Pattern "0.0.1" | %{$_ -replace "@{Name=CABLE Output "} | %{$_ -replace "(VB-Audio Virtual Cable)"}) | %{$_ -replace "@{Name=Hi-Fi Cable Output "}
 if (!$preid){
-$file = "$env:windir\System32\drivers\etc\hosts"
-$hostsfile = (get-content $file)
-"127.0.0.1 pages.perso.orange.fr" | Add-Content -PassThru $file >$null 2>&1
-echo $hostsfile >"$env:windir\System32\drivers\etc\hosts-prenyhm"
 echo "Step 7 of 8. Downloading and extracting vb-audio cable..."
 echo " "
 if (!(Test-Path C:\Windows\system32\dns-sd.exe)){
@@ -347,6 +343,7 @@ $FormVB.Controls.Add($Button1)
 $FormVB.Add_Shown({$FormVB.Activate()})
 $FormVB.ShowDialog()
 }
+sleep 5
 if (!(Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll")){
 Invoke-WebRequest -Uri https://github.com/Palakis/obs-ndi/releases/download/4.6.0/obs-ndi-4.6.0-Windows-Installer.exe -OutFile "C:\Program Files (x86)\nowyouhearme\download\obs-ndi-4.6.0-Windows-Installer.exe"
 $FormOBSNDI = New-Object System.Windows.Forms.Form
@@ -406,7 +403,7 @@ New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program
 New-NetFirewallRule -DisplayName "obs64" -Direction Inbound -Program "C:\Program Files\obs-studio\bin\64bit\obs64.exe" -Profile Private -Protocol TCP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "OBS Studio" -Direction Inbound -Program "C:\program files\obs-studio\bin\64bit\obs64.exe" -Profile Public -Protocol TCP -RemoteAddress Any -Action Allow >$null 2>&1
 New-NetFirewallRule -DisplayName "OBS Studio" -Direction Inbound -Program "C:\program files\obs-studio\bin\64bit\obs64.exe" -Profile Public -Protocol UDP -RemoteAddress Any -Action Allow >$null 2>&1
-sleep 30
+sleep 45
 if (Test-Path "C:\Program Files\obs-studio\obs-plugins\64bit\obs-ndi.dll"){
 $reboot="yes"
 echo "Installed the OBS-NDI plugins + the NDI runtime."
