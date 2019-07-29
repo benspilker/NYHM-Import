@@ -4,13 +4,13 @@ ztaccount=$(curl -sH 'Accept: application/json' -H 'Authorization: Bearer HnHCtF
 ztidvar=$(echo $ztaccount | '/usr/bin/jq' '.[].config.id' | sed 's/"//g')
 ztidarr=($ztidvar)
 
-tiervar=$(echo $ztid | '/usr/bin/jq' '.[].config.ipAssignmentPools' | sed 's/"ipRangeStart": "172.22.172.1".//g' | sed 's/"ipRangeEnd": "172.22.172.//g' | sed 's/{//g' | sed 's/}//g' | sed 's/"//g' | sed 's/[][]//g' | sed 's/ //g')
+tiervar=$(echo $ztaccount | '/usr/bin/jq' '.[].config.ipAssignmentPools' | sed 's/"ipRangeStart": "172.22.172.1".//g' | sed 's/"ipRangeEnd": "172.22.172.//g' | sed 's/{//g' | sed 's/}//g' | sed 's/"//g' | sed 's/[][]//g' | sed 's/ //g')
 tierarr=($tiervar)
 
-totalmembervar=$(echo $ztid | '/usr/bin/jq' '.[].totalMemberCount')
+totalmembervar=$(echo $ztaccount | '/usr/bin/jq' '.[].totalMemberCount')
 totalmemberarr=($totalmembervar)
 
-onlinemembervar=$(echo $ztid | '/usr/bin/jq' '.[].onlineMemberCount')
+onlinemembervar=$(echo $ztaccount | '/usr/bin/jq' '.[].onlineMemberCount')
 onlinememberarr=($onlinemembervar)
 
 notonline=$(for ((i=0; i<${#onlinememberarr[*]}; i++));  do   if (("${onlinememberarr[i]}" < "2" )); then echo "$i"; fi; done)
